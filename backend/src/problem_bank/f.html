@@ -1,0 +1,83 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700&family=M+PLUS+1p:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#fff;color:#1a0a1e;}
+body{font-family:'M PLUS 1p',sans-serif;}
+.shell{max-width:720px;margin:0 auto;padding:32px 24px 60px;}
+.prob-title{font-family:'Noto Serif JP',serif;font-size:24px;font-weight:700;color:#1a0a1e;margin-bottom:8px;line-height:1.3;border-bottom:1.5px solid #f0d6e8;padding-bottom:20px;}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e84f8a;margin-bottom:10px;margin-top:24px;}
+.stmt{font-size:14px;line-height:1.9;color:#2a1a2e;margin-bottom:28px;}
+.stmt p{margin-bottom:12px;}
+.stmt p:last-child{margin-bottom:0;}
+.constraints{margin-bottom:28px;}
+.constraint-row{padding:7px 0;border-bottom:1px solid #f5eaf0;font-size:14px;color:#2a1a2e;}
+.constraint-row:last-child{border-bottom:none;}
+.c-sym{color:#7b5cba;font-weight:700;font-family:monospace;font-size:13px;}
+.note{background:#fffbea;border-left:3px solid #c9a227;padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;color:#5d4000;line-height:1.6;margin-bottom:28px;}
+.samples{display:flex;flex-direction:column;gap:16px;}
+.sample{border:1px solid #f0d6e8;border-radius:10px;overflow:hidden;}
+.sample-head{background:#fce4ef;padding:8px 14px;font-size:11px;font-weight:700;color:#993556;letter-spacing:0.07em;text-transform:uppercase;}
+.sample-body{display:grid;grid-template-columns:1fr 1fr;}
+.sample-col{padding:12px 14px;}
+.sample-col:first-child{border-right:1px solid #f0d6e8;}
+.sample-col-label{font-size:11px;color:#8a6a7a;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;}
+.sample-code{font-family:monospace;font-size:13px;line-height:1.7;color:#1a0a1e;white-space:pre;}
+</style>
+
+<div class="shell">
+  <div class="prob-title">The Larp Circle</div>
+
+  <div class="section-label">Statement</div>
+  <div class="stmt">
+    <p>A group of n dedicated larpers showed up to an outdoor event. Half were larping Chainsaw Man characters, a few were doing a full Subahibi visual novel reenactment, and the rest were arguing about whether Subaru from Re:Zero would survive their obstacle course.</p>
+    <p>Eventually they agreed to do round dances. Every person has exactly two neighbors. If only 2 people are in a dance, they share the same neighbor on both sides.</p>
+    <p>Everyone was so deep in character that each person only remembered ONE of their two neighbors. Given who each person remembered, determine the minimum and maximum number of separate round dances that could have taken place.</p>
+    <p>Subaru tried Return by Death to remember both neighbors. Still only got one.</p>
+  </div>
+
+  <div class="section-label">Input</div>
+  <div class="stmt">
+    <p>The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>) -- the number of test cases.</p>
+    <p>Each test case begins with a single integer n. The next line contains n integers a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>, where a<sub>i</sub> is the one neighbor person i remembers.</p>
+  </div>
+
+  <div class="section-label">Output</div>
+  <div class="stmt">
+    <p>For each test case, print two integers on one line: the minimum and maximum number of round dances.</p>
+  </div>
+
+  <div class="section-label">Constraints</div>
+  <div class="constraints">
+    <div class="constraint-row"><span class="c-sym">1 &le; t &le; 10<sup>4</sup></span></div>
+    <div class="constraint-row"><span class="c-sym">2 &le; n &le; 2&times;10<sup>5</sup></span></div>
+    <div class="constraint-row"><span class="c-sym">1 &le; a<sub>i</sub> &le; n, a<sub>i</sub> &ne; i</span></div>
+    <div class="constraint-row"><span class="c-sym">Sum of n across all test cases &le; 2&times;10<sup>5</sup></span></div>
+  </div>
+
+  <div class="note">Input guaranteed to correspond to at least one valid arrangement.</div>
+
+  <div class="section-label">Sample I/O</div>
+  <div class="samples">
+    <div class="sample">
+      <div class="sample-head">Sample 1</div>
+      <div class="sample-body">
+        <div class="sample-col">
+          <div class="sample-col-label">Input</div>
+          <div class="sample-code">3
+6
+2 1 4 3 6 5
+6
+2 3 1 5 6 4
+2
+2 1</div>
+        </div>
+        <div class="sample-col">
+          <div class="sample-col-label">Output</div>
+          <div class="sample-code">1 3
+2 2
+1 1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
