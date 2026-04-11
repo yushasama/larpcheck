@@ -42,12 +42,23 @@ body{font-family:'M PLUS 1p',sans-serif;}
     <p>Each person only remembered exactly one neighbor from their circle. Given who each person remembered, determine the minimum and maximum number of larp circles that could have formed.</p>
   </div>
 
+  <div class="section-label">Input</div>
+  <div class="stmt">
+    <p>The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.</p>
+    <p>Each test case begins with a single integer n. The next line contains n integers a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>, where a<sub>i</sub> is the one neighbor person i remembered.</p>
+  </div>
+
+  <div class="section-label">Output</div>
+  <div class="stmt">
+    <p>For each test case, print two integers on a single line: the minimum and maximum number of larp circles that could have formed.</p>
+  </div>
+
   <div class="section-label">Constraints</div>
   <div class="constraints">
     <div class="constraint-row"><span class="c-sym">1 &le; t &le; 10<sup>4</sup></span></div>
     <div class="constraint-row"><span class="c-sym">2 &le; n &le; 2&times;10<sup>5</sup></span></div>
     <div class="constraint-row"><span class="c-sym">People are numbered 1 to n (1-indexed)</span></div>
-    <div class="constraint-row"><span class="c-sym">1 &le; a<sub>i</sub> &le; n, a<sub>i</sub> &ne; i &nbsp;—&nbsp; no one recommended to themselves</span></div>
+    <div class="constraint-row"><span class="c-sym">1 &le; a<sub>i</sub> &le; n, a<sub>i</sub> &ne; i (no one remembered themselves)</span></div>
     <div class="constraint-row"><span class="c-sym">Sum of n across all test cases &le; 2&times;10<sup>5</sup></span></div>
   </div>
 
