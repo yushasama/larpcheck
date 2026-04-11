@@ -24,26 +24,62 @@ using namespace std;
 #define mins(x,y) (x = min(x,y))
 #define popcnt(x) (__builtin_popcount(x))
 
-#define yn(a) ((a) ? "YES" : "NO")
-#define fs(a) ((a) ? "FIRST" : "SECOND")
+#define yn(a) ((a) ? "Yes" : "No")
+#define fs(a) ((a) ? "First" : "Second")
 
 const int MOD = 1000000007;
 const int INF = 1000000000;
 const ll LINF = 1000000000000000000LL;
 const double EPS = 1e-10;
 
-void solve() {
-  int n, q;
-  cin >> n >> q;
-}
-
 int main() {
   cin.tie(0);
   ios_base::sync_with_stdio(0);
 
-  int t;
-  cin >> t;
+  int n, m;
+  ll b;
 
-  rep(i,t) solve();
+  cin >> n >> m >> b;
+
+  vector<iii> g(n);
+
+  rep(i, m) {
+    int u, v;
+    ll c;
+
+    cin >> u >> v >> c;
+
+    --u, --v;
+
+    g[u].pb({v, c});
+    g[v].pb({u, c});
+  }
+
+  vl dist(n, LINF);
+  priority_queue<pair<ll, int>, vector<pair<ll, int>, greater<>> pq;
+  
+  dist[0] = 0;
+  pq.push({0, 0});
+
+  while (!pq.empty()) {
+    auto [d, u] = pq.top();
+    pq.pop();
+
+    if (d > dist[u]) continue;
+
+    for (auto [v, c] : g[u]) {
+      ll nd = dist[u] + c;
+
+      if (nd < dist[v]) {
+        dist[v] = nd;
+        pq.push({nd, v});
+      }
+    }
+  }
+
+  ll res = dist[n-1];
+
+  cout << (res == LINF || res > b > -1 : res) << "\n";
+
   return 0;
 }

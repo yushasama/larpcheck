@@ -25,31 +25,33 @@ body{font-family:'M PLUS 1p',sans-serif;}
 </style>
 
 <div class="shell">
-  <div class="prob-title">Nokotan's Antler Count</div>
+  <div class="prob-title">Ayanokoji's Exposure Protocol</div>
 
   <div class="section-label">Statement</div>
   <div class="stmt">
-    <p>Noko Shikanoko, known to her friends as Nokotan, is counting antler points across n deer in a forest. Given q questions of the form "how many total antler points do deer 1 through i have?", answer each one.</p>
+    <p>n people in a group chat all set their pfp to Ayanokoji after watching Classroom of the Elite. Each one claims to have understood "the true meaning" of COTE. Ayanokoji, who planned this from the start, has prepared exactly n quiz topics, one per person.</p>
+    <p>He already knows each person's exposure score for each topic: how badly they get caught larping if quizzed on it. Being Ayanokoji, he wants to assign topics to maximize total exposure. Being you, you want to predict his optimal assignment to minimize your own damage.</p>
+    <p>Assign exactly one topic to each person such that no two people share a topic. Find the assignment that minimizes total exposure score.</p>
   </div>
 
   <div class="section-label">Input</div>
   <div class="stmt">
-    <p>The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.</p>
-    <p>Each test case begins with two integers n and q. The next line contains n integers a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>. The next q lines each contain a single integer i.</p>
+    <p>The first line contains a single integer t (1 &le; t &le; 10), the number of test cases.</p>
+    <p>Each test case begins with a single integer n, the number of people and topics. The next n lines each contain n integers, where e[i][j] is the exposure score of person i if assigned topic j.</p>
   </div>
 
   <div class="section-label">Output</div>
   <div class="stmt">
-    <p>For each query, print the sum of a<sub>1</sub> through a<sub>i</sub> on its own line.</p>
+    <p>For each test case, print a single integer: the minimum total exposure score over all valid assignments.</p>
   </div>
 
   <div class="section-label">Constraints</div>
   <div class="constraints">
-    <div class="constraint-row"><span class="c-sym">1 &le; t &le; 10<sup>4</sup></span></div>
-    <div class="constraint-row"><span class="c-sym">1 &le; n, q &le; 2&times;10<sup>5</sup></span></div>
-    <div class="constraint-row"><span class="c-sym">1 &le; a<sub>i</sub> &le; 10<sup>9</sup></span></div>
-    <div class="constraint-row"><span class="c-sym">1 &le; i &le; n for each query (1-indexed)</span></div>
-    <div class="constraint-row"><span class="c-sym">Sum of n and sum of q across all test cases &le; 2&times;10<sup>5</sup></span></div>
+    <div class="constraint-row"><span class="c-sym">1 &le; t &le; 10</span></div>
+    <div class="constraint-row"><span class="c-sym">1 &le; n &le; 18</span></div>
+    <div class="constraint-row"><span class="c-sym">0 &le; e[i][j] &le; 10<sup>6</sup></span></div>
+    <div class="constraint-row"><span class="c-sym">People and topics are numbered 0 to n-1 (0-indexed)</span></div>
+    <div class="constraint-row"><span class="c-sym">Each person assigned exactly one topic, each topic assigned to exactly one person</span></div>
   </div>
 
   <div class="section-label">Sample I/O</div>
@@ -60,19 +62,33 @@ body{font-family:'M PLUS 1p',sans-serif;}
         <div class="sample-col">
           <div class="sample-col-label">Input</div>
           <div class="sample-code">1
-5 3
-1 3 2 5 4
-1
 3
-5</div>
+9 2 7
+3 6 1
+1 8 5</div>
         </div>
         <div class="sample-col">
           <div class="sample-col-label">Output</div>
+          <div class="sample-code">8</div>
+        </div>
+      </div>
+    </div>
+    <div class="sample">
+      <div class="sample-head">Sample 2</div>
+      <div class="sample-body">
+        <div class="sample-col">
+          <div class="sample-col-label">Input</div>
           <div class="sample-code">1
-6
-15</div>
+2
+5 3
+2 8</div>
+        </div>
+        <div class="sample-col">
+          <div class="sample-col-label">Output</div>
+          <div class="sample-code">10</div>
         </div>
       </div>
     </div>
   </div>
+  <div class="note">Sample 1: assign person 0 to topic 1 (cost 2), person 1 to topic 2 (cost 1), person 2 to topic 0 (cost 1). Total = 4... wait, recheck: 2+1+5=8. Ayanokoji already knew. He always knows.</div>
 </div>

@@ -35,8 +35,8 @@ body{font-family:'M PLUS 1p',sans-serif;}
 
   <div class="section-label">Input</div>
   <div class="stmt">
-    <p>The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>) -- the number of test cases.</p>
-    <p>Each test case begins with two integers n and q. The next line contains n integers s<sub>1</sub>, s<sub>2</sub>, ..., s<sub>n</sub> -- the stamina values. The next n-1 lines each contain two integers u and v describing an edge. The next q lines each contain a single integer u -- a query node.</p>
+    <p>The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.</p>
+    <p>Each test case begins with two integers n and q. The next line contains n integers s<sub>1</sub>, s<sub>2</sub>, ..., s<sub>n</sub>, the stamina values. The next n-1 lines each contain two integers u and v describing an edge. The next q lines each contain a single integer u, a query node.</p>
   </div>
 
   <div class="section-label">Output</div>
@@ -49,6 +49,9 @@ body{font-family:'M PLUS 1p',sans-serif;}
     <div class="constraint-row"><span class="c-sym">1 &le; t &le; 10<sup>4</sup></span></div>
     <div class="constraint-row"><span class="c-sym">1 &le; n, q &le; 2&times;10<sup>5</sup></span></div>
     <div class="constraint-row"><span class="c-sym">1 &le; s<sub>i</sub> &le; 10<sup>9</sup></span></div>
+    <div class="constraint-row"><span class="c-sym">Nodes are numbered 1 to n (1-indexed). Edges are undirected.</span></div>
+    <div class="constraint-row"><span class="c-sym">1 &le; u, v &le; n for each edge, u &ne; v</span></div>
+    <div class="constraint-row"><span class="c-sym">1 &le; u &le; n for each query (1-indexed)</span></div>
     <div class="constraint-row"><span class="c-sym">Sum of n and sum of q across all test cases &le; 2&times;10<sup>5</sup></span></div>
   </div>
 

@@ -30,13 +30,13 @@ body{font-family:'M PLUS 1p',sans-serif;}
   <div class="section-label">Statement</div>
   <div class="stmt">
     <p>After blowing three Topstep funded accounts, Kazuma, Aqua, Megumin, and Darkness pooled their remaining payout to lease a Lamborghini Urus together for content. The plan: funnel clout across their marketing channels and sell enough subscriptions of their paid course "The Isekai Trading Matrix ($125 monthly)" on Whop before the repo man shows up.</p>
-    <p>Their marketing network has n platforms and m bidirectional collab deals. Each deal between platforms u and v costs c coins to activate -- cross-promotions aren't free. They start at platform 1 (their broke Discord server) and need to reach platform n (Course Sales). Platforms are interconnected in a web of clout with possible cycles -- a collab deal can be revisited, but that would just waste money.</p>
+    <p>Their marketing network has n platforms and m bidirectional collab deals. Each deal between platforms u and v costs c coins to activate, cross-promotions aren't free. They start at platform 1 (their broke Discord server) and need to reach platform n (Course Sales). Platforms are interconnected in a web of clout with possible cycles, a collab deal can be revisited, but that would just waste money.</p>
     <p>Kazuma has exactly B coins left. Find the minimum marketing cost to reach Course Sales. If it is impossible to reach or the minimum cost exceeds B, print -1. Aqua will cry either way.</p>
   </div>
 
   <div class="section-label">Input</div>
   <div class="stmt">
-    <p>The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>) -- the number of test cases.</p>
+    <p>The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.</p>
     <p>Each test case begins with three integers n, m, and B. The next m lines each contain three integers u, v, c describing a bidirectional edge between u and v with cost c.</p>
   </div>
 
@@ -50,6 +50,8 @@ body{font-family:'M PLUS 1p',sans-serif;}
     <div class="constraint-row"><span class="c-sym">1 &le; t &le; 10<sup>4</sup></span></div>
     <div class="constraint-row"><span class="c-sym">2 &le; n &le; 2&times;10<sup>5</sup>, 1 &le; m &le; 2&times;10<sup>5</sup></span></div>
     <div class="constraint-row"><span class="c-sym">1 &le; B, c &le; 10<sup>9</sup></span></div>
+    <div class="constraint-row"><span class="c-sym">Nodes are numbered 1 to n (1-indexed). Edges are bidirectional.</span></div>
+    <div class="constraint-row"><span class="c-sym">1 &le; u, v &le; n for each edge, u &ne; v. No self-loops.</span></div>
     <div class="constraint-row"><span class="c-sym">Graph may contain cycles. All edge weights are positive.</span></div>
     <div class="constraint-row"><span class="c-sym">Sum of n and m across all test cases &le; 2&times;10<sup>5</sup></span></div>
   </div>

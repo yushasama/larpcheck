@@ -5,7 +5,11 @@ html,body{background:#fff;color:#1a0a1e;}
 body{font-family:'M PLUS 1p',sans-serif;}
 .shell{max-width:720px;margin:0 auto;padding:32px 24px 60px;}
 .prob-title{font-family:'Noto Serif JP',serif;font-size:24px;font-weight:700;color:#1a0a1e;margin-bottom:8px;line-height:1.3;border-bottom:1.5px solid #f0d6e8;padding-bottom:20px;}
-.section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e84f8a;margin-bottom:10px;margin-top:24px;}
+.prob-meta{display:flex;gap:12px;margin-bottom:20px;margin-top:12px;}
+.badge{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;}
+.badge-hard{background:#fce4ef;color:#993556;}
+.badge-topic{background:#f0eaff;color:#5c3a9e;}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e84f8a;margin-bottom:10px;}
 .stmt{font-size:14px;line-height:1.9;color:#2a1a2e;margin-bottom:28px;}
 .stmt p{margin-bottom:12px;}
 .stmt p:last-child{margin-bottom:0;}
@@ -26,35 +30,28 @@ body{font-family:'M PLUS 1p',sans-serif;}
 
 <div class="shell">
   <div class="prob-title">The Larp Circle</div>
+  <div class="prob-meta">
+    <span class="badge badge-hard">Hard</span>
+    <span class="badge badge-topic">Graph Construction</span>
+  </div>
 
   <div class="section-label">Statement</div>
   <div class="stmt">
-    <p>A group of n dedicated larpers showed up to an outdoor event. Half were larping Chainsaw Man characters, a few were doing a full Subahibi visual novel reenactment, and the rest were arguing about whether Subaru from Re:Zero would survive their obstacle course.</p>
-    <p>Eventually they agreed to do round dances. Every person has exactly two neighbors. If only 2 people are in a dance, they share the same neighbor on both sides.</p>
-    <p>Everyone was so deep in character that each person only remembered ONE of their two neighbors. Given who each person remembered, determine the minimum and maximum number of separate round dances that could have taken place.</p>
-    <p>Subaru tried Return by Death to remember both neighbors. Still only got one.</p>
-  </div>
-
-  <div class="section-label">Input</div>
-  <div class="stmt">
-    <p>The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>) -- the number of test cases.</p>
-    <p>Each test case begins with a single integer n. The next line contains n integers a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>, where a<sub>i</sub> is the one neighbor person i remembers.</p>
-  </div>
-
-  <div class="section-label">Output</div>
-  <div class="stmt">
-    <p>For each test case, print two integers on one line: the minimum and maximum number of round dances.</p>
+    <p>n people showed up to an anime convention all larping as die-hard fans. Some were deep in their Subahibi lore (watched a YouTube summary). Some swore they read the Chainsaw Man manga (they only know Pochita from TikTok). The Re:Zero group argued about whether Subaru is sigma (none got past episode 3). The JJK crowd was the worst, Hakari mains blasting Tuca Donka, Ryu fans spamming Jane Juliet edits and that panel where he says "lets larp", Gojo believers on Blue Judas, Yuji guys crying on Red Judas. None of them read a single chapter.</p>
+    <p>To keep up appearances they decided to do larp circles. There are at least 2 people in each circle and each person has exactly two neighbors. If there are 2 people in a circle they share the same neighbor on both sides.</p>
+    <p>Each person only remembered exactly one neighbor from their circle. Given who each person remembered, determine the minimum and maximum number of larp circles that could have formed.</p>
   </div>
 
   <div class="section-label">Constraints</div>
   <div class="constraints">
     <div class="constraint-row"><span class="c-sym">1 &le; t &le; 10<sup>4</sup></span></div>
     <div class="constraint-row"><span class="c-sym">2 &le; n &le; 2&times;10<sup>5</sup></span></div>
-    <div class="constraint-row"><span class="c-sym">1 &le; a<sub>i</sub> &le; n, a<sub>i</sub> &ne; i</span></div>
+    <div class="constraint-row"><span class="c-sym">People are numbered 1 to n (1-indexed)</span></div>
+    <div class="constraint-row"><span class="c-sym">1 &le; a<sub>i</sub> &le; n, a<sub>i</sub> &ne; i &nbsp;—&nbsp; no one recommended to themselves</span></div>
     <div class="constraint-row"><span class="c-sym">Sum of n across all test cases &le; 2&times;10<sup>5</sup></span></div>
   </div>
 
-  <div class="note">Input guaranteed to correspond to at least one valid arrangement.</div>
+  <div class="note">Input is guaranteed to correspond to at least one valid division into larp circles.</div>
 
   <div class="section-label">Sample I/O</div>
   <div class="samples">
@@ -79,5 +76,10 @@ body{font-family:'M PLUS 1p',sans-serif;}
         </div>
       </div>
     </div>
+  </div>
+  <div class="note">
+    First case min=1: one big circle 1-2-3-4-5-6-1.<br>
+    First case max=3: (1-2-1), (3-4-3), (5-6-5).<br>
+    The Subahibi larpers refused to share a circle with the JJK-only-knows-Gojo crowd. Hence max 3.
   </div>
 </div>
