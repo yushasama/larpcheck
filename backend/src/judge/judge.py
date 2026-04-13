@@ -72,7 +72,7 @@ def judge_submission(file_path, problem_id):
                 input=stdin,
                 capture_output=True,
                 text=True,
-                timeout=2 if file_type == 'C++' else 2.5
+                timeout=2 if file_type == 'C++' else 5.0
             )
     
             elapsed = time.time() - start

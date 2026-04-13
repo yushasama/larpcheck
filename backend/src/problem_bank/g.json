@@ -1,0 +1,36 @@
+{
+  "id": "g",
+  "title": "Kazuma's Marketing Empire (Don't Let Them Repo The Urus)",
+  "badges": [],
+  "statement": [
+    "After blowing three Topstep funded accounts, Kazuma, Aqua, Megumin, and Darkness pooled their remaining payout to lease a Lamborghini Urus together for content. The plan: funnel clout across their marketing channels and sell enough subscriptions of their paid course \"The Isekai Trading Matrix ($125 monthly)\" on Whop before the repo man shows up.",
+    "Their marketing network has n platforms and m bidirectional collab deals. Each deal between platforms u and v costs c coins to activate, cross-promotions aren't free. They start at platform 1 (their broke Discord server) and need to reach platform n (Course Sales). Platforms are interconnected in a web of clout with possible cycles; a collab deal can be revisited, but that would just waste money.",
+    "Kazuma has exactly B coins left. Find the minimum marketing cost to reach Course Sales. If it is impossible to reach or the minimum cost exceeds B, print -1. Aqua will cry either way."
+  ],
+  "input_format": [
+    "The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.",
+    "Each test case begins with three integers n, m, and B. The next m lines each contain three integers u, v, c (1 &le; u, v &le; n, u &ne; v, 1 &le; c &le; 10<sup>9</sup>) describing a bidirectional edge between platforms u and v with cost c."
+  ],
+  "output_format": [
+    "For each test case, print the minimum cost to travel from platform 1 to platform n, or -1 if it is impossible or exceeds B."
+  ],
+  "constraints": [
+    "1 &le; t &le; 10<sup>4</sup>",
+    "2 &le; n &le; 2&times;10<sup>5</sup>, 1 &le; m &le; 2&times;10<sup>5</sup>",
+    "1 &le; B, c &le; 10<sup>9</sup>",
+    "Nodes are numbered 1 to n (1-indexed). Edges are bidirectional.",
+    "1 &le; u, v &le; n for each edge, u &ne; v. No self-loops.",
+    "Graph may contain cycles. All edge weights are positive.",
+    "Sum of n and m across all test cases &le; 2&times;10<sup>5</sup>"
+  ],
+  "notes": [
+    "Test 1: path 1 to 2 to 4 to 5 costs 5+3+7 = 15. Urus safe. Test 2: cheapest path costs 13, which exceeds B = 5. Repo man wins."
+  ],
+  "samples": [
+    {
+      "label": "Sample 1",
+      "input": "2\n5 6 20\n1 2 5\n1 3 10\n2 4 3\n2 5 15\n3 4 2\n4 5 7\n3 2 5\n1 2 3\n2 3 10",
+      "output": "15\n-1"
+    }
+  ]
+}

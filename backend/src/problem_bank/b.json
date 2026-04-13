@@ -1,0 +1,32 @@
+{
+  "id": "b",
+  "title": "Tung Tung Tung Sahur vs Larp Larp Larp Sahur",
+  "badges": [],
+  "statement": [
+    "The village of Sahur is under attack. The villagers have lined up n warriors in order of battle power (sorted ascending). Tung Tung Tung Sahur needs to find if a warrior with power level k exists in the lineup, but he can only bang his drum O(log n) times before Larp Larp Larp Sahur wakes up and ruins everything.",
+    "Find the 0-indexed position of the warrior with power k. If no such warrior exists, return -1.",
+    "You MUST solve this in O(log n). Linear scan = Larp Larp wins."
+  ],
+  "input_format": [
+    "The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.",
+    "Each test case consists of two lines. The first line contains two integers n and k. The second line contains n space-separated integers forming the sorted array."
+  ],
+  "output_format": [
+    "For each test case, print a single integer: the 0-indexed position of k, or -1 if not found."
+  ],
+  "constraints": [
+    "1 &le; t &le; 10<sup>4</sup>",
+    "1 &le; n &le; 10<sup>4</sup>",
+    "-10<sup>4</sup> &lt; nums[i], k &lt; 10<sup>4</sup>",
+    "All elements unique. Array sorted ascending.",
+    "Array is 0-indexed"
+  ],
+  "notes": [],
+  "samples": [
+    {
+      "label": "Sample 1",
+      "input": "2\n6 9\n-1 0 3 5 9 12\n6 2\n-1 0 3 5 9 12",
+      "output": "4\n-1"
+    }
+  ]
+}

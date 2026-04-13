@@ -1,0 +1,30 @@
+{
+  "id": "c",
+  "title": "Nokotan's Antler Count",
+  "badges": [],
+  "statement": [
+    "Noko Shikanoko, known to her friends as Nokotan, is counting antler points across n deer in a forest. Given q questions of the form \"how many total antler points do deer 1 through i have?\", answer each one."
+  ],
+  "input_format": [
+    "The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.",
+    "Each test case begins with two integers n and q. The next line contains n integers a<sub>1</sub>, a<sub>2</sub>, ..., a<sub>n</sub>. The next q lines each contain a single integer i."
+  ],
+  "output_format": [
+    "For each query, print the sum of a<sub>1</sub> through a<sub>i</sub> on its own line."
+  ],
+  "constraints": [
+    "1 &le; t &le; 10<sup>4</sup>",
+    "1 &le; n, q &le; 2&times;10<sup>5</sup>",
+    "1 &le; a<sub>i</sub> &le; 10<sup>9</sup>",
+    "1 &le; i &le; n for each query (1-indexed)",
+    "Sum of n and sum of q across all test cases &le; 2&times;10<sup>5</sup>"
+  ],
+  "notes": [],
+  "samples": [
+    {
+      "label": "Sample 1",
+      "input": "1\n5 3\n1 3 2 5 4\n1\n3\n5",
+      "output": "1\n6\n15"
+    }
+  ]
+}

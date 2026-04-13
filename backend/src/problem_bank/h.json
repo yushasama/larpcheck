@@ -1,0 +1,37 @@
+{
+  "id": "h",
+  "title": "Subaru's Piezoelectric Staircase",
+  "badges": [],
+  "statement": [
+    "In an alternate timeline, Subaru got isekai'd into modern Japan. Japan has installed piezoelectric tiles on every staircase, each tile generates electricity when stepped on. The staircases form a tree of n checkpoints rooted at checkpoint 1, where tile i generates p<sub>i</sub> units of electricity.",
+    "Subaru keeps dying and respawning at different checkpoints. Each time he spawns at u, he wants to know: if he runs through every checkpoint in his subtree, how much total electricity does he generate?",
+    "But every time Subaru dies, the mysterious figure also sabotages one tile, changing its power output.",
+    "Given q operations, answer all type 2 queries.<br><strong>1 u x</strong>: set tile u to output x.<br><strong>2 u</strong>: query total electricity in subtree of u."
+  ],
+  "input_format": [
+    "The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.",
+    "Each test case begins with two integers n and q. The next line contains n integers p<sub>1</sub>, p<sub>2</sub>, ..., p<sub>n</sub>, the initial tile outputs. The next n-1 lines each contain two integers u and v (1 &le; u, v &le; n, u &ne; v) describing an undirected tree edge. The next q lines each contain an operation of type 1 or 2 as described above."
+  ],
+  "output_format": [
+    "For each type 2 query, print the total electricity generated in the subtree of u."
+  ],
+  "constraints": [
+    "1 &le; t &le; 10<sup>4</sup>",
+    "1 &le; n, q &le; 2&times;10<sup>5</sup>",
+    "1 &le; p<sub>i</sub>, x &le; 10<sup>9</sup>",
+    "Nodes are numbered 1 to n (1-indexed). Edges are undirected.",
+    "1 &le; u, v &le; n for each edge, u &ne; v",
+    "For type 1: 1 &le; u &le; n, 1 &le; x &le; 10<sup>9</sup>. For type 2: 1 &le; u &le; n.",
+    "Sum of n and sum of q across all test cases &le; 2&times;10<sup>5</sup>"
+  ],
+  "notes": [
+    "Initial subtree of node 2 = {2,4,5} = 2+4+5 = 11. After tile 4 becomes 10: subtree 2 = 2+10+5 = 17. Subtree 1 = 1+2+3+10+5 = 21."
+  ],
+  "samples": [
+    {
+      "label": "Sample 1",
+      "input": "1\n5 4\n1 2 3 4 5\n1 2\n1 3\n2 4\n2 5\n2 2\n1 4 10\n2 2\n2 1",
+      "output": "11\n17\n21"
+    }
+  ]
+}

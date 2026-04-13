@@ -33,18 +33,18 @@ const ll LINF = 1000000000000000000LL;
 const double EPS = 1e-10;
 
 struct Euler {
-  vl euler;
+  vl tour;
   vi tin;
   vi tout;
   vector<vi> g;
   vl vals;
   int timer = 0;
 
-  Euler(int n, const vector<vi>& g, const vl& vals) : euler(n), tin(n), tout(n), g(g), vals(vals) {}
+  Euler(int n, const vector<vi>& g, const vl& vals) : tour(n), tin(n), tout(n), g(g), vals(vals) {}
 
   void dfs(int u, int p) {
     tin[u] = timer;
-    euler[timer] = vals[u];
+    tour[timer] = vals[u];
     ++timer;
 
     for (auto& v : g[u]) {
@@ -57,6 +57,35 @@ struct Euler {
 
   void build(int root) {
     dfs(root, -1);
+  }
+};
+
+struct Fenwick {
+  vl bit;
+  int n;
+
+  Fenwick(int n) : n(n), bit(n+1) {}
+
+  void add(int i, ll x) {
+    for (; i <= n; i += i & -i) bit[i] += x;
+  }
+
+  void update(int i, ll x) {
+    ll cur = sum(i) - sum(i-1);
+    ll delta = x - cur;
+
+    add(i, delta);
+  }
+
+  ll sum (int i) {
+    ll s = 0;
+
+    for (; i > 0; i -= i & -i) s += bit[i];
+    return s;
+  }
+
+  ll query(int l, int r) {
+    return sum(r) - sum(l-1);
   }
 };
 
@@ -74,24 +103,33 @@ void solve() {
     cin >> u >> v;
 
     --u, --v;
-    
+
     g[u].pb(v);
     g[v].pb(u);
   }
 
-  Euler euler(n, g, a);
-  euler.build(0);
+  Euler et(n, g, a);
+  et.build(0);
 
-  vl pre(n+1);
-  rep(i, n) pre[i+1] = pre[i] + euler.euler[i];
+  Fenwick ft(n);
+
+  rep(i, n) ft.add(i+1, et.tour[i]);
 
   while (q--) {
-    int u;
-    cin >> u;
+    int t, u;
+    ll x;
+
+    cin >> t >> u;
 
     --u;
 
-    cout << pre[euler.tout[u] + 1] - pre[euler.tin[u]] << "\n";
+    if (t == 1) {
+      cin >> x;
+
+      ft.update(et.tin[u] + 1, x);
+    }
+
+    else cout << ft.query(et.tin[u] + 1, et.tout[u] + 1) << "\n";
   }
 }
 

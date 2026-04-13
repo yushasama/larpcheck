@@ -1,0 +1,38 @@
+{
+  "id": "j",
+  "title": "Kazuma's Eris Heist",
+  "badges": [],
+  "statement": [
+    "In his past life, Satou Kazuma was a NEET who spent approximately 4,000 hours playing Steal-a-Brainrot on Roblox. He died embarrassingly. Aqua laughed at him.",
+    "Now isekai'd into Axel, Kazuma has realized that the kingdom of Belzerg's road network is just a weighted tree and that his past-life brainrot has made him the most dangerous thief in the land. The Eris Church is not prepared.",
+    "The kingdom has n towns connected by roads forming a tree. Each town i has r<sub>i</sub> Eris coins sitting completely unguarded because Darkness used her connections to throw a festival far off and everyone is celebrating. Aqua's contribution is 0.",
+    "Kazuma picks one town as his hideout and dispatches the party to steal from every town simultaneously. However, the further a town is from the hideout, the longer it takes Megumin to waddle there (she refuses to run, it messes up her hat), so more guards have time to respawn.",
+    "The haul from town v when hiding at town u is r<sub>v</sub> &times; (n &minus; d(u, v)) Eris, where d(u, v) is the number of roads between them. Your total haul from hideout u is the sum of r<sub>v</sub> &times; (n &minus; d(u, v)) across all towns v.",
+    "For each town u from 1 to n, output the total haul. Kazuma wants the most optimal hideout. Aqua will cry either way."
+  ],
+  "input_format": [
+    "The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.",
+    "Each test case begins with a single integer n. The next line contains n integers r<sub>1</sub>, r<sub>2</sub>, ..., r<sub>n</sub> (1 &le; r<sub>i</sub> &le; 10<sup>9</sup>), the Eris stored at each town. The next n-1 lines each contain two integers u and v (1 &le; u, v &le; n, u &ne; v), a road between two towns."
+  ],
+  "output_format": [
+    "For each test case, print n space-separated integers on a single line, the total haul for each hideout from 1 to n."
+  ],
+  "constraints": [
+    "1 &le; t &le; 10<sup>4</sup>",
+    "1 &le; n &le; 2&times;10<sup>5</sup>",
+    "1 &le; r<sub>i</sub> &le; 10<sup>9</sup>",
+    "Towns are numbered 1 to n (1-indexed). Roads are undirected.",
+    "1 &le; u, v &le; n for each road, u &ne; v. No self-loops.",
+    "Sum of n across all test cases &le; 2&times;10<sup>5</sup>"
+  ],
+  "notes": [
+    "Hideout 3 gives the best haul of 54 Eris. Kazuma correctly identified it as the most central node relative to coin density. Aqua called it beginner's luck. Megumin exploded town 5 anyway for the aesthetic. Aqua will cry either way."
+  ],
+  "samples": [
+    {
+      "label": "Sample 1",
+      "input": "1\n5\n3 1 4 1 5\n1 2\n1 3\n3 4\n3 5",
+      "output": "52 44 54 46 50"
+    }
+  ]
+}

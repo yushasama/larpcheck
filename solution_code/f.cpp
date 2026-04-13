@@ -48,31 +48,31 @@ void solve() {
     g[v].insert(u);
   }
 
-  int c = 0;
-  int b = 0;
+  vb visited(n);
 
-  vector<bool> visited(n);
+  int c, b;
+  c = b = 0;
 
   rep(i, n) {
     if (visited[i]) continue;
     visited[i] = true;
 
-    bool is_cycle = true;
-    
     queue<int> q;
     q.push(i);
+
+    bool is_cycle = true;
 
     while (!q.empty()) {
       int u = q.front();
       q.pop();
 
-      if (g[u].size() != 2) is_cycle = false;
+      visited[u] = true;
+
+      if (sz(g[u]) != 2) is_cycle = false;
 
       for (auto& v : g[u]) {
-        if (!visited[v]) {
-          visited[v] = true;
-          q.push(v);
-        }
+        if (visited[v]) continue;
+        q.push(v);
       }
     }
 
@@ -80,7 +80,7 @@ void solve() {
     else ++b;
   }
 
-  cout << c + (b ? 1 : 0) << c + b << "\n";
+  cout << c + min(1, b) << " " << c + b << "\n";
 }
 
 int main() {

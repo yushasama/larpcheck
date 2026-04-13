@@ -1,0 +1,30 @@
+{
+  "id": "a",
+  "title": "Special Week's Training Log",
+  "badges": [],
+  "statement": [
+    "Special Week has just arrived at Tracen Academy and needs to log her training sessions. Her trainer gives her the following rules:",
+    "If the session number is divisible by both 3 and 5, write <strong>UmaMusume</strong>.<br>If divisible by 3 only, write <strong>Uma</strong>.<br>If divisible by 5 only, write <strong>Musume</strong>.<br>Otherwise, write the session number itself.",
+    "Given n, print the full training log from session 1 to n."
+  ],
+  "input_format": [
+    "The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.",
+    "Each test case contains a single integer n."
+  ],
+  "output_format": [
+    "For each test case, print n lines according to the rules above."
+  ],
+  "constraints": [
+    "1 &le; t &le; 10<sup>4</sup>",
+    "1 &le; n &le; 10<sup>4</sup>",
+    "Sessions are numbered 1 to n (1-indexed)"
+  ],
+  "notes": [],
+  "samples": [
+    {
+      "label": "Sample 1",
+      "input": "1\n15",
+      "output": "1\n2\nUma\n4\nMusume\nUma\n7\n8\nUma\nMusume\n11\nUma\n13\n14\nUmaMusume"
+    }
+  ]
+}

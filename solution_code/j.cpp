@@ -32,31 +32,73 @@ const int INF = 1000000000;
 const ll LINF = 1000000000000000000LL;
 const double EPS = 1e-10;
 
+struct Reroot {
+  vl down;
+  vl haul;
+  vl sub_r;
+  vl vals;
+  vector<vi> g;
+  int n;
+  ll total_r = 0;
+
+  Reroot(int n, const vector<vi>& g, const vl& vals) : n(n), haul(n), sub_r(n), down(n), g(g), vals(vals) {}
+
+  void dfs1(int u, int p) {
+    sub_r[u] = vals[u];
+    down[u] = 0;
+
+    for (auto& v : g[u]) {
+      if (v == p) continue;
+      dfs1(v, u);
+
+      sub_r[u] += sub_r[v];
+      down[u] += down[v] + sub_r[v];
+    }
+  }
+
+  void dfs2(int u, int p, ll cur_down) {
+    haul[u] = n * total_r - cur_down;
+
+    for (auto& v : g[u]) {
+      if (v == p) continue;
+
+      ll new_down = cur_down + total_r - 2 * sub_r[v];
+
+      dfs2(v, u, new_down);
+    }
+  }
+
+  void build(int root) {
+    dfs1(root, -1);
+    total_r = sub_r[root];
+
+    dfs2(root, -1, down[root]);
+  }
+};
+
 void solve() {
   int n;
   cin >> n;
 
-  vi a(n);
+  vl a(n);
   rep(i, n) cin >> a[i];
 
-  vector<vi> dp(n, vi(n, INF));
-  rep(i, n) dp[i][i] = 1;
+  vector<vi> g(n);
 
-  for (int len = 2; len <= n; ++len) {
-    for (int l = 0; l + len <= n; ++l) {
-      int r = l + len - 1;
+  rep(i, n-1) {
+    int u, v;
+    cin >> u >> v;
+    
+    --u, --v;
 
-      for (int k = l; k < r; ++k) {
-        dp[l][r] = min(dp[l][r], dp[l][k] + dp[k+1][r]);
-      }
-
-      if (a[l] == a[r]) {
-        dp[l][r] = min(dp[l][r], len == 2 ? 1 : dp[l+1][r-1]);
-      }
-    }
+    g[u].pb(v);
+    g[v].pb(u);
   }
 
-  cout << dp[0][n-1] << "\n";
+  Reroot rrt(n, g, a);
+  rrt.build(0);
+
+  rep(i, n) cout << rrt.haul[i] << " \n"[i == n-1];
 }
 
 int main() {

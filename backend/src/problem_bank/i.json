@@ -1,0 +1,39 @@
+{
+  "id": "i",
+  "title": "Ayanokoji's Exposure Protocol",
+  "badges": [],
+  "statement": [
+    "n people in a group chat all set their pfp to Ayanokoji after watching Classroom of the Elite. Each one claims to have understood \"the true meaning\" of COTE. Ayanokoji, who planned this from the start, has prepared exactly n quiz topics, one per person.",
+    "He already knows each person's exposure score for each topic: how badly they get caught larping if quizzed on it. Being Ayanokoji, he wants to assign topics to maximize total exposure. Being you, you want to predict his optimal assignment to minimize your own damage.",
+    "Assign exactly one topic to each person such that no two people share a topic. Find the assignment that minimizes total exposure score."
+  ],
+  "input_format": [
+    "The first line contains a single integer t (1 &le; t &le; 10), the number of test cases.",
+    "Each test case begins with a single integer n, the number of people and topics. The next n lines each contain n integers, where e[i][j] is the exposure score of person i if assigned topic j (0 &le; e[i][j] &le; 10<sup>6</sup>)."
+  ],
+  "output_format": [
+    "For each test case, print a single integer: the minimum total exposure score over all valid assignments."
+  ],
+  "constraints": [
+    "1 &le; t &le; 10",
+    "1 &le; n &le; 18",
+    "0 &le; e[i][j] &le; 10<sup>6</sup>",
+    "People and topics are numbered 0 to n-1 (0-indexed)",
+    "Each person assigned exactly one topic, each topic assigned to exactly one person"
+  ],
+  "notes": [
+    "Sample 1: assign person 0 to topic 1 (cost 2), person 1 to topic 2 (cost 1), person 2 to topic 0 (cost 5). Total = 8. Ayanokoji already knew. He always knows."
+  ],
+  "samples": [
+    {
+      "label": "Sample 1",
+      "input": "1\n3\n9 2 7\n3 6 1\n1 8 5",
+      "output": "8"
+    },
+    {
+      "label": "Sample 2",
+      "input": "1\n2\n5 3\n2 8",
+      "output": "10"
+    }
+  ]
+}

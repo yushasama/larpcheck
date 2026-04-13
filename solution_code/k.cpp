@@ -33,48 +33,22 @@ const ll LINF = 1000000000000000000LL;
 const double EPS = 1e-10;
 
 void solve() {
-  int n, m, B;
-  cin >> n >> m >> B;
+  int n, x;
+  cin >> n >> x;
 
-  vector<vector<pll>> g(n);
+  vi a(n);
+  rep(i, n) cin >> a[i];
 
-  rep(i, m) {
-    int u, v;
-    ll c;
+  unordered_map<int, int> hm;
 
-    cin >> u >> v >> c;
-    --u, --v;
-
-    g[u].pb({v, c});
-    g[v].pb({u, c});
-  }
-
-  priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;
-  
-  vl dist(n, LINF);
-  dist[0] = 0;
-
-  pq.push({0, 0});
-
-  while (!pq.empty()) {
-    auto [d, u] = pq.top();
-    pq.pop();
-
-    if (d > dist[u]) continue;
-
-    for (auto& [v, c] : g[u]) {
-      ll nd = d + c;
-
-      if (nd < dist[v]) {
-        pq.push({nd, v});
-        dist[v] = nd;
-      }
+  rep(i, n) {
+    if (hm.count(x - a[i])) {
+      cout << hm[x - a[i]] << " " << i << "\n";
+      return;
     }
+
+    if (!hm.count(a[i])) hm[a[i]] = i;
   }
-
-  ll res = dist[n-1];
-
-  cout << (res == LINF || res > B ? -1 : res) << "\n";
 }
 
 int main() {

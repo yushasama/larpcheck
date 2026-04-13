@@ -1,0 +1,105 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700&family=M+PLUS+1p:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#fff;color:#1a0a1e;}
+body{font-family:'M PLUS 1p',sans-serif;}
+.shell{max-width:720px;margin:0 auto;padding:32px 24px 60px;}
+.prob-title{font-family:'Noto Serif JP',serif;font-size:24px;font-weight:700;color:#1a0a1e;margin-bottom:8px;line-height:1.3;border-bottom:1.5px solid #f0d6e8;padding-bottom:20px;}
+.prob-meta{display:flex;gap:12px;margin-bottom:20px;margin-top:12px;}
+.badge{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 10px;border-radius:20px;}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#e84f8a;margin-bottom:10px;margin-top:24px;}
+.stmt{font-size:14px;line-height:1.9;color:#2a1a2e;margin-bottom:28px;}
+.stmt p{margin-bottom:12px;}
+.stmt p:last-child{margin-bottom:0;}
+.constraints{margin-bottom:28px;}
+.constraint-row{padding:7px 0;border-bottom:1px solid #f5eaf0;font-size:14px;color:#2a1a2e;}
+.constraint-row:last-child{border-bottom:none;}
+.c-sym{color:#7b5cba;font-weight:700;font-family:monospace;font-size:13px;}
+.note{background:#fffbea;border-left:3px solid #c9a227;padding:10px 14px;border-radius:0 6px 6px 0;font-size:13px;color:#5d4000;line-height:1.6;margin-bottom:16px;}
+.samples{display:flex;flex-direction:column;gap:16px;}
+.sample{border:1px solid #f0d6e8;border-radius:10px;overflow:hidden;}
+.sample-head{background:#fce4ef;padding:8px 14px;font-size:11px;font-weight:700;color:#993556;letter-spacing:0.07em;text-transform:uppercase;}
+.sample-body{display:grid;grid-template-columns:1fr 1fr;}
+.sample-col{padding:12px 14px;}
+.sample-col:first-child{border-right:1px solid #f0d6e8;}
+.sample-col-label{font-size:11px;color:#8a6a7a;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;}
+.sample-code{font-family:monospace;font-size:13px;line-height:1.7;color:#1a0a1e;white-space:pre;}
+</style>
+
+<div class="shell">
+
+  <div class="prob-title">Kazuma's Course Launch Party (The Urus Is Already Leased)</div>
+
+<div class="section-label">Statement</div>
+<div class="stmt">
+  <p>The Isekai Trading Matrix just went live on Whop. First week sales covered exactly the Urus lease payment and nothing else. Kazuma declared this a win and immediately spent the remaining budget on a course launch party. Aqua wanted an open bar. Megumin wanted a pyrotechnics display. Darkness wanted to get rejected at the door. Kazuma overruled all of them and spent everything on influencer appearance fees.</p>
+  <p>There are n influencers in the fintwit scene. Each influencer i charges an appearance fee of c<sub>i</sub> coins. Influencers are connected through a network of m mutual collabs and shoutouts. The total reach of a group is the number of unique influencers in the combined follower network reachable from any member of the group through the collab graph (including the invited guests themselves).</p>
+  <p>Kazuma has exactly B coins left. He wants to invite exactly 3 influencers whose total appearance fee sums to exactly B. Among all valid triplets, find the one with maximum total reach. If no valid triplet exists, print -1. Aqua will cry either way.</p>
+  <p>Note: two influencers who have collabed means their audiences overlap, so total reach is the union of all influencers reachable from any of the three via BFS, not the sum.</p>
+</div>
+
+<div class="section-label">Input</div>
+<div class="stmt">
+  <p>The first line contains a single integer t (1 &le; t &le; 10), the number of test cases.</p>
+  <p>Each test case begins with three integers n, m, and B. The next line contains n integers c<sub>1</sub>, c<sub>2</sub>, ..., c<sub>n</sub> (-10<sup>9</sup> &le; c<sub>i</sub> &le; 10<sup>9</sup>), the appearance fees. The next m lines each contain two integers u and v (1 &le; u, v &le; n, u &ne; v), a mutual collab between influencer u and influencer v.</p>
+</div>
+
+<div class="section-label">Output</div>
+<div class="stmt">
+  <p>For each test case, print a single integer: the maximum total reach among all valid triplets, or -1 if no triplet sums to B.</p>
+</div>
+
+<div class="section-label">Constraints</div>
+<div class="constraints">
+  <div class="constraint-row"><span class="c-sym">1 &le; t &le; 10</span></div>
+  <div class="constraint-row"><span class="c-sym">3 &le; n &le; 3000, 0 &le; m &le; n&times;(n-1)/2</span></div>
+  <div class="constraint-row"><span class="c-sym">-10<sup>9</sup> &le; c<sub>i</sub> &le; 10<sup>9</sup>, -10<sup>9</sup> &le; B &le; 10<sup>9</sup></span></div>
+  <div class="constraint-row"><span class="c-sym">Influencers are numbered 1 to n (1-indexed). Collabs are undirected.</span></div>
+  <div class="constraint-row"><span class="c-sym">1 &le; u, v &le; n for each collab, u &ne; v. No duplicate edges.</span></div>
+  <div class="constraint-row"><span class="c-sym">All appearance fees are distinct.</span></div>
+</div>
+
+<div class="section-label">Notes</div>
+<div class="note">Sample 1: valid triplets summing to 10 include influencers with fees (1,3,6). BFS from nodes 1, 2, 3 reaches all 5 influencers through the collab chain. Total reach = 5. The party was worth it. Kazuma would like credit for this. Aqua took credit for it instead.</div>
+
+<div class="section-label">Sample I/O</div>
+<div class="samples">
+<div class="sample">
+  <div class="sample-head">Sample 1</div>
+  <div class="sample-body">
+    <div class="sample-col">
+      <div class="sample-col-label">Input</div>
+      <div class="sample-code">1
+5 4 10
+1 3 6 2 8
+1 2
+2 3
+3 4
+4 5</div>
+    </div>
+    <div class="sample-col">
+      <div class="sample-col-label">Output</div>
+      <div class="sample-code">5</div>
+    </div>
+  </div>
+</div>
+<div class="sample">
+  <div class="sample-head">Sample 2</div>
+  <div class="sample-body">
+    <div class="sample-col">
+      <div class="sample-col-label">Input</div>
+      <div class="sample-code">1
+4 2 100
+1 2 3 4
+1 2
+3 4</div>
+    </div>
+    <div class="sample-col">
+      <div class="sample-col-label">Output</div>
+      <div class="sample-code">-1</div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>

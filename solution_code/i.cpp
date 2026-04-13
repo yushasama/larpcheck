@@ -33,48 +33,31 @@ const ll LINF = 1000000000000000000LL;
 const double EPS = 1e-10;
 
 void solve() {
-  int n, m, B;
-  cin >> n >> m >> B;
+  int n;
+  cin >> n;
 
-  vector<vector<pll>> g(n);
+  vector<vi> e(n, vi(n));
 
-  rep(i, m) {
-    int u, v;
-    ll c;
+  rep(i, n) rep(j, n) cin >> e[i][j];
 
-    cin >> u >> v >> c;
-    --u, --v;
+  int N = 1 << n;
 
-    g[u].pb({v, c});
-    g[v].pb({u, c});
-  }
+  vi dp(N, INF);
+  dp[0] = 0;
 
-  priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;
-  
-  vl dist(n, LINF);
-  dist[0] = 0;
+  for (int mask = 0; mask < N; ++mask) {
+    int i = popcnt(mask);
 
-  pq.push({0, 0});
+    for (int j = 0; j < n; ++j) {
+      if (!(mask & (1 << j))) {
+        int nmask = mask | (1 << j);
 
-  while (!pq.empty()) {
-    auto [d, u] = pq.top();
-    pq.pop();
-
-    if (d > dist[u]) continue;
-
-    for (auto& [v, c] : g[u]) {
-      ll nd = d + c;
-
-      if (nd < dist[v]) {
-        pq.push({nd, v});
-        dist[v] = nd;
+        dp[nmask] = min(dp[nmask], dp[mask] + e[i][j]);
       }
     }
   }
 
-  ll res = dist[n-1];
-
-  cout << (res == LINF || res > B ? -1 : res) << "\n";
+  cout << dp[N-1] << "\n";
 }
 
 int main() {

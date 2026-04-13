@@ -39,7 +39,7 @@ void solve() {
   rrep(i, n) {
     if (i % 15 == 0) cout << "UmaMusume" << "\n";
     
-    else if (i % 5 == 0) cout << "Uma" << "\n";
+    else if (i % 3 == 0) cout << "Uma" << "\n";
 
     else if (i % 5 == 0) cout << "Musume" << "\n";
 
