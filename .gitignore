@@ -1,0 +1,16 @@
+.uv-cache/
+.larpcheck_state.json
+
+.venv/
+**/.venv/
+
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+*.egg-info/
+
+# PyInstaller
+build/
+dist/
+*.spec

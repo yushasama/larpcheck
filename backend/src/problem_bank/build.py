@@ -13,6 +13,9 @@ import argparse
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).parent.parent / "ransomware"))
+from crypto import make_fernet
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -153,7 +156,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build problem HTMLs from JSONs.")
     parser.add_argument("ids", nargs="*", help="Problem IDs to build (default: all)")
     parser.add_argument("--src", default="../problem_bank", help="Source JSON directory")
-    parser.add_argument("--out", default="../../../frontend/problems", help="Output HTML directory")
+    parser.add_argument("--out", default="../ransomware/resources/problems", help="Output HTML directory")
     args = parser.parse_args()
 
     src_dir = Path(args.src)

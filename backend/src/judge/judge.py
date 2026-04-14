@@ -1,106 +1,110 @@
-import subprocess, tempfile, os, time
-from pathlib import Path
+import os
 import shutil
-import json
+import subprocess
+import tempfile
+import time
+from pathlib import Path
+import hashlib, base64, hmac
+from ransomware.crypto import make_fernet
 
-def load_test_cases(problem_id):
-    path = Path("../problem_bank/") + problem_id
+TESTCASES_PATH = Path(__file__).resolve().parent.parent / "problem_bank" / "testcases"
+CPP_TIMEOUT_SECONDS = 2
+PYTHON_TIMEOUT_SECONDS = 5.0
+SEGFAULT_RETURN_CODE = -11
 
-    with open(path, 'r') as f:
-        data = json.load(f)
 
-    return [(tc["input"], tc["output"]) for tc in data
-    ["test_cases"]]
+def load_io(problem_id: str) -> tuple[str, str]:
+    input_path = TESTCASES_PATH / f"{problem_id}.in"
+    enc_path   = TESTCASES_PATH / f"{problem_id}.out.enc"
+    stdin = input_path.read_text()
+    expected = make_fernet().decrypt(enc_path.read_bytes()).decode()
+    return stdin, expected
 
-def get_python():
-    if shutil.which('python3'):
-        return 'python3'
-    elif shutil.which('python'):
-        return 'python'
-    else:
-        raise RuntimeError('No Python found')
+
+def get_python() -> str:
+    if shutil.which("python3"):
+        return "python3"
+    if shutil.which("python"):
+        return "python"
+    raise RuntimeError("No Python found")
+
 
 def judge_submission(file_path, problem_id):
-    with open(file_path, 'r') as f:
-        source_code = f.read()
+    source_path = Path(file_path)
+    source_code = source_path.read_text()
+    stdin_text, expected_text = load_io(problem_id)
 
-    test_cases = load_test_cases(problem_id)
-
-    ext = os.path.splitext(file_path)[1].lower()
-
+    ext = source_path.suffix.lower()
     binary = None
+    runtime_command: list[str]
+    timeout_seconds: float
 
     if ext == ".cpp":
-        with tempfile.NamedTemporaryFile(suffix='.cpp', delete=False, mode='w') as f:
-            f.write(source_code)
-            src = f.name
-            
-            binary = src.replace('.cpp', '')
-            
-            compile_result = subprocess.run(
-                ['g++', '-O2', '-std=c++17', '-o', binary, src],
-                capture_output=True, text=True
-            )
+        with tempfile.NamedTemporaryFile(suffix=".cpp", delete=False, mode="w") as handle:
+            handle.write(source_code)
+            src = handle.name
 
-            if compile_result.returncode != 0:
-                os.unlink(src)
+        binary = src.replace(".cpp", "")
+        compile_result = subprocess.run(
+            ["g++", "-O2", "-std=c++17", "-o", binary, src],
+            capture_output=True,
+            text=True,
+        )
+        if compile_result.returncode != 0:
+            os.unlink(src)
+            return {"status": "Compile Error", "detail": compile_result.stderr}
 
-                return {'status': 'Compile Error', 'detail': compile_result.stderr}
-
-            file_type = 'C++'
-            
+        runtime_command = [binary]
+        timeout_seconds = CPP_TIMEOUT_SECONDS
     elif ext == ".py":
-        with tempfile.NamedTemporaryFile(suffix='.py', delete=False, mode='w') as f:
-            f.write(source_code)
-            src = f.name
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False, mode="w") as handle:
+            handle.write(source_code)
+            src = handle.name
 
-            file_type = 'PY'
-
+        runtime_command = [get_python(), src]
+        timeout_seconds = PYTHON_TIMEOUT_SECONDS
     else:
-       raise Exception("Please submit a valid CPP or Python file.")
+        raise Exception("Please submit a valid CPP or Python file.")
 
-    results = []
+    start = time.time()
+    try:
+        run = subprocess.run(
+            runtime_command,
+            input=stdin_text,
+            capture_output=True,
+            text=True,
+            timeout=timeout_seconds,
+        )
+        elapsed = time.time() - start
+        actual = run.stdout.strip()
+        expected = expected_text.strip()
+        if run.returncode != 0:
+            stderr_lower = run.stderr.lower()
+            if run.returncode == SEGFAULT_RETURN_CODE or "segmentation fault" in stderr_lower:
+                status = "SEGFAULT"
+            else:
+                status = "RTE"
+        elif actual == expected:
+            status = "AC"
+        else:
+            status = "WA"
+        return [
+            {
+                "case": 1,
+                "status": status,
+                "time_ms": round(elapsed * 1000),
+                "expected": expected,
+                "actual": actual,
+                "stderr": run.stderr,
+            }
+        ]
+    except subprocess.TimeoutExpired:
+        return [{"case": 1, "status": "TLE"}]
+    finally:
+        os.unlink(src)
+        if binary and os.path.exists(binary):
+            os.unlink(binary)
 
-    test_cases = ""
-
-    for i, (stdin, expected) in enumerate(test_cases):
-        start = time.time()
-
-        try:
-            run = subprocess.run(
-                [binary] if file_type == 'C++' else [get_python(), src],
-                input=stdin,
-                capture_output=True,
-                text=True,
-                timeout=2 if file_type == 'C++' else 5.0
-            )
-    
-            elapsed = time.time() - start
-            actual = run.stdout.strip()
-            expected = expected.strip()
-    
-            status = 'AC' if actual == expected else 'WA'
-
-            results.append({
-                'case': i+1,
-                'status': status,
-                'time_ms': round(elapsed * 1000),
-                'expected': expected,
-                'actual': actual,
-                'stderr': run.stderr
-            })
-
-        except subprocess.TimeoutExpired:
-            results.append({'case': i+1, 'status': 'TLE'})
-
-    os.unlink(src)
-
-    if binary and os.path.exists(binary):
-        os.unlink(binary)
-
-    return results
 
 def judge(file_path, problem_id):
-    ext = os.path.splitext(file_path)[1].lower()
-
     return judge_submission(file_path, problem_id)

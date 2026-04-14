@@ -12,6 +12,10 @@ Usage:
 
 import argparse, heapq, random
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).parent.parent / "ransomware"))
+from crypto import make_fernet
 
 
 # ═══════════════════════════════════════════════════════
@@ -208,12 +212,20 @@ GENERATORS = {
     "i": gen_i, "j": gen_j, "k": gen_k, "l": gen_l,
 }
 
+def encrypt_outputs(out_dir: Path) -> None:
+    f = make_fernet()
+    for out_path in out_dir.glob("*.out"):
+        enc = f.encrypt(out_path.read_bytes())
+        out_path.with_suffix(".out.enc").write_bytes(enc)
+        out_path.unlink()
+        print(f"  encrypted → {out_path.stem}.out.enc")
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--seed",     type=int,   default=None)
     parser.add_argument("--out",      type=str,   default="../problem_bank/testcases")
     parser.add_argument("--problems", nargs="*",  default=list(GENERATORS.keys()))
+
     args = parser.parse_args()
 
     seed = args.seed if args.seed is not None else random.randint(0, 2**31)

@@ -1,0 +1,15 @@
+BG_PRIMARY = "#1a0800"
+BG_DARK = "#120500"
+BG_CARD = "#0d0300"
+BG_DROP = "#1a0800"
+FG_ACCENT = "#ff6622"
+FG_ORANGE = "#e8550a"
+FG_DIM = "#a03808"
+FG_TIMER = "#ff4400"
+FG_SOLVED = "#44dd00"
+FG_ERROR = "#ff6b6b"
+FONT_MONO = ("Courier", 9)
+FONT_MONO_BOLD = ("Courier", 11, "bold")
+FONT_TIMER = ("Courier", 22, "bold")
+FONT_DEADLINE = ("Courier", 16, "bold")
+FONT_TITLE = ("Courier", 40)

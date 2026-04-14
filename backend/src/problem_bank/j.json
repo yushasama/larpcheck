@@ -8,7 +8,7 @@
     "The kingdom has n towns connected by roads forming a tree. Each town i has r<sub>i</sub> Eris coins sitting completely unguarded because Darkness used her connections to throw a festival far off and everyone is celebrating. Aqua's contribution is 0.",
     "Kazuma picks one town as his hideout and dispatches the party to steal from every town simultaneously. However, the further a town is from the hideout, the longer it takes Megumin to waddle there (she refuses to run, it messes up her hat), so more guards have time to respawn.",
     "The haul from town v when hiding at town u is r<sub>v</sub> &times; (n &minus; d(u, v)) Eris, where d(u, v) is the number of roads between them. Your total haul from hideout u is the sum of r<sub>v</sub> &times; (n &minus; d(u, v)) across all towns v.",
-    "For each town u from 1 to n, output the total haul. Kazuma wants the most optimal hideout. Aqua will cry either way."
+    "For each town u from 1 to n, output the total haul. Kazuma wants the most optimal hideout."
   ],
   "input_format": [
     "The first line contains a single integer t (1 &le; t &le; 10<sup>4</sup>), the number of test cases.",
@@ -26,13 +26,13 @@
     "Sum of n across all test cases &le; 2&times;10<sup>5</sup>"
   ],
   "notes": [
-    "Hideout 3 gives the best haul of 54 Eris. Kazuma correctly identified it as the most central node relative to coin density. Aqua called it beginner's luck. Megumin exploded town 5 anyway for the aesthetic. Aqua will cry either way."
+    "Hideout 3 gives the best haul of 59 Eris. Kazuma correctly identified it as the most central node relative to coin density. Aqua called it beginner's luck. Megumin exploded town 5 anyway for the aesthetic. Aqua will cry either way"
   ],
   "samples": [
     {
       "label": "Sample 1",
       "input": "1\n5\n3 1 4 1 5\n1 2\n1 3\n3 4\n3 5",
-      "output": "52 44 54 46 50"
+      "output": "53 41 59 47 55"
     }
   ]
 }
