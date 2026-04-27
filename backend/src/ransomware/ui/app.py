@@ -1,6 +1,5 @@
 from pathlib import Path
 import random
-import shutil
 import time
 import tkinter as tk
 from tkinter import filedialog
@@ -21,8 +20,6 @@ from ransomware.config import (
     PROBLEM_TITLES,
     PROBLEMS_PATH,
     RESET_TEXT,
-    SANDBOX_PATH,
-    SANDBOX_BACKUP_PATH,
     STATUS_NO_BACKUP_TEXT,
     STATUS_COMPILE_ERROR_TEXT,
     STATUS_DECRYPTED_TEXT,
@@ -47,7 +44,7 @@ from ransomware.config import (
     WINDOW_SIZE,
 )
 from ransomware.countdown import Countdown
-from ransomware.crypto import decrypt_all, encrypt_all
+from ransomware.sandbox import SandboxManager, SandboxSyncResult
 from ransomware.state import RansomwareState, clear_state, load_state, save_state
 from ransomware.ui.problem_card import ProblemCard, build_problem_card
 from ransomware.ui.problem_viewer import ProblemViewer
@@ -94,6 +91,8 @@ class LarpCheckUI:
         self.solved_problem_ids: set[str] = set(self.state.solved_problem_ids)
         self.active_problem_ids = list(self.state.active_problem_ids)
         self.persist_on_close = True
+        self.startup_banner: tuple[str, str] | None = None
+        self.sandbox = SandboxManager()
 
         self.deadline_label: tk.Label | None = None
         self.banner_label: tk.Label | None = None
@@ -102,6 +101,8 @@ class LarpCheckUI:
 
         self.ensure_sandbox_seeded()
         self.build_layout()
+        if self.startup_banner is not None:
+            self.set_banner(*self.startup_banner)
         if self.state.round_active:
             self.encrypt_sandbox()
         self.refresh_timers()
@@ -221,45 +222,38 @@ class LarpCheckUI:
             self.cards.append(card)
 
     def ensure_sandbox_seeded(self) -> None:
-        SANDBOX_PATH.mkdir(parents=True, exist_ok=True)
-        if any(SANDBOX_PATH.iterdir()):
+        sync = self.sync_sandbox_state()
+        if sync.restored_from_backup:
+            self.startup_banner = (STATUS_SANDBOX_RESTORED_TEXT, FG_ACCENT)
             return
-        self.restore_sandbox_from_backup()
+        if not sync.backup_available and self.sandbox.is_empty():
+            self.startup_banner = (STATUS_NO_BACKUP_TEXT, FG_ERROR)
+            return
+        if sync.decrypted_count and not self.state.round_active:
+            self.startup_banner = (f"{STATUS_DECRYPTED_TEXT} ({sync.decrypted_count} files)", FG_SOLVED)
 
     def restore_sandbox_from_backup(self) -> bool:
-        if not SANDBOX_BACKUP_PATH.exists() or not any(SANDBOX_BACKUP_PATH.iterdir()):
+        restored = self.sandbox.restore_from_backup()
+        if restored:
+            self.set_banner(STATUS_SANDBOX_RESTORED_TEXT, FG_ACCENT)
+        else:
             self.set_banner(STATUS_NO_BACKUP_TEXT, FG_ERROR)
-            return False
-
-        SANDBOX_PATH.mkdir(parents=True, exist_ok=True)
-        for child in SANDBOX_PATH.iterdir():
-            if child.is_dir():
-                shutil.rmtree(child)
-            else:
-                child.unlink()
-
-        for source in SANDBOX_BACKUP_PATH.rglob("*"):
-            target = SANDBOX_PATH / source.relative_to(SANDBOX_BACKUP_PATH)
-            if source.is_dir():
-                target.mkdir(parents=True, exist_ok=True)
-            else:
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, target)
-
-        self.set_banner(STATUS_SANDBOX_RESTORED_TEXT, FG_ACCENT)
-        return True
+        return restored
 
     def encrypt_sandbox(self) -> None:
         if not self.state.encrypted:
-            self.ensure_sandbox_seeded()
-            encrypted_count = encrypt_all(SANDBOX_PATH)
+            sync = self.sync_sandbox_state()
+            if not sync.backup_available and self.sandbox.is_empty():
+                self.set_banner(STATUS_NO_BACKUP_TEXT, FG_ERROR)
+                return
+            encrypted_count = self.sandbox.encrypt()
             self.state.encrypted = True
             save_state(self.state)
             self.set_banner(f"{STATUS_ENCRYPTED_TEXT} ({encrypted_count} files)", FG_ACCENT)
 
     def decrypt_sandbox(self) -> None:
         if self.state.encrypted:
-            decrypt_count = decrypt_all(SANDBOX_PATH)
+            decrypt_count = self.sandbox.decrypt()
             self.state.encrypted = False
             self.persist_on_close = False
             clear_state()
@@ -267,6 +261,8 @@ class LarpCheckUI:
             self.set_banner(f"{STATUS_DECRYPTED_TEXT} ({decrypt_count} files)", FG_SOLVED)
 
     def refresh_timers(self) -> None:
+        if len(self.solved_problem_ids) >= PROBLEM_COUNT_TO_DECRYPT:
+            return
         if self.deadline_label is not None:
             self.deadline_label.configure(text=self.current_deadline_display())
         self.root.after(TIMER_TICK_MS, self.refresh_timers)
@@ -274,6 +270,12 @@ class LarpCheckUI:
     def current_deadline_display(self) -> str:
         effective_deadline_seconds = max(0, DEADLINE_SECONDS - (self.state.penalties * PENALTY_SECONDS))
         return self.countdown.deadline_display(effective_deadline_seconds)
+
+    def sync_sandbox_state(self) -> SandboxSyncResult:
+        sync = self.sandbox.reconcile(self.state)
+        if sync.state_changed:
+            save_state(self.state)
+        return sync
 
     def get_card(self, problem_id: str) -> ProblemCard:
         for card in self.cards:
@@ -363,7 +365,7 @@ class LarpCheckUI:
             self.set_banner(STATUS_WRONG_TEXT, FG_ERROR)
 
     def mark_solved(self, problem_id: str, card: ProblemCard) -> None:
-        from ransomware.state import sign_solve, verify_solve
+        from ransomware.state import sign_solve
         token = sign_solve(problem_id)
         self.state.solve_tokens[problem_id] = token
         self.solved_problem_ids.add(problem_id)
@@ -403,9 +405,12 @@ class LarpCheckUI:
         self.state.round_active = False
         self.state.encrypted = False
         save_state(self.state)
-        self.restore_sandbox_from_backup()
+        restored = self.restore_sandbox_from_backup()
         self.render_cards()
-        self.set_banner(STATUS_ROUND_ENDED_TEXT, FG_ERROR)
+        if restored:
+            self.set_banner(f"{STATUS_ROUND_ENDED_TEXT} {STATUS_SANDBOX_RESTORED_TEXT}", FG_ACCENT)
+        else:
+            self.set_banner(f"{STATUS_ROUND_ENDED_TEXT} {STATUS_NO_BACKUP_TEXT}", FG_ERROR)
 
     def set_banner(self, text: str, color: str) -> None:
         if self.banner_label is not None:

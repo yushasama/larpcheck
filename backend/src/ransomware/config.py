@@ -1,13 +1,17 @@
-from pathlib import Path
-
-PACKAGE_PATH = Path(__file__).resolve().parent
-REPO_ROOT = PACKAGE_PATH.parents[2]
-BACKEND_PATH = PACKAGE_PATH.parents[1]
-SANDBOX_PATH = REPO_ROOT / "sandbox"
-SANDBOX_BACKUP_PATH = REPO_ROOT / "sandbox_backup"
-RESOURCES_PATH = PACKAGE_PATH / "resources"
-PROBLEMS_PATH = RESOURCES_PATH / "problems"
-STATE_PATH = REPO_ROOT / ".larpcheck_state.json"
+from ransomware.runtime.paths import (
+    APP_ROOT,
+    BACKEND_PATH,
+    BUNDLE_ROOT,
+    PACKAGE_PATH,
+    PROBLEMS_PATH,
+    REPO_ROOT,
+    RESOURCES_PATH,
+    SANDBOX_BACKUP_PATH,
+    SANDBOX_PATH,
+    SRC_PATH,
+    STATE_PATH,
+    TESTCASES_PATH,
+)
 
 FERNET_SECRET = b"larpcheck-2026"
 FERNET_SALT = b"testcase-salt"

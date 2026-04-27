@@ -1,11 +1,40 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+using ll = long long;
+
 struct Edge {
-    int u;
-    int v;
-    long long w;
+    int to;
+    ll w;
 };
+
+const ll INF = (ll)4e18;
+
+int n, m;
+ll B;
+vector<vector<Edge>> g;
+vector<int> vis;
+ll ans;
+
+void dfs(int u, ll cost) {
+    if (cost > B) return;
+    if (cost >= ans) return;
+
+    if (u == n - 1) {
+        ans = min(ans, cost);
+        return;
+    }
+
+    vis[u] = 1;
+
+    for (auto &e : g[u]) {
+        if (!vis[e.to]) {
+            dfs(e.to, cost + e.w);
+        }
+    }
+
+    vis[u] = 0;
+}
 
 int main() {
     ios::sync_with_stdio(false);
@@ -14,36 +43,24 @@ int main() {
     int t;
     cin >> t;
     while (t--) {
-        int n, m;
-        long long B;
         cin >> n >> m >> B;
-        vector<Edge> edges;
-        for (int i = 0; i < m; ++i) {
+
+        g.assign(n, {});
+        for (int i = 0; i < m; i++) {
             int u, v;
-            long long w;
+            ll w;
             cin >> u >> v >> w;
-            --u;
-            --v;
-            edges.push_back({u, v, w});
-            edges.push_back({v, u, w});
+            --u; --v;
+
+            g[u].push_back({v, w});
+            g[v].push_back({u, w});
         }
 
-        const long long INF = (long long)4e18;
-        vector<long long> dist(n, INF);
-        dist[0] = 0;
-        for (int iter = 0; iter < n - 1; ++iter) {
-            bool changed = false;
-            for (const auto& e : edges) {
-                if (dist[e.u] == INF) continue;
-                if (dist[e.u] + e.w < dist[e.v]) {
-                    dist[e.v] = dist[e.u] + e.w;
-                    changed = true;
-                }
-            }
-            if (!changed) break;
-        }
+        vis.assign(n, 0);
+        ans = INF;
 
-        long long ans = dist[n - 1];
+        dfs(0, 0);
+
         if (ans == INF || ans > B) cout << -1 << '\n';
         else cout << ans << '\n';
     }

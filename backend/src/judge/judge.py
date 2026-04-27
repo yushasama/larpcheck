@@ -6,8 +6,8 @@ import time
 from pathlib import Path
 import hashlib, base64, hmac
 from ransomware.crypto import make_fernet
+from ransomware.config import TESTCASES_PATH
 
-TESTCASES_PATH = Path(__file__).resolve().parent.parent / "problem_bank" / "testcases"
 CPP_TIMEOUT_SECONDS = 2
 PYTHON_TIMEOUT_SECONDS = 5.0
 SEGFAULT_RETURN_CODE = -11

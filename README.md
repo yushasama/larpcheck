@@ -24,7 +24,7 @@ git clone <repo-url>
 cd larpcheck
 
 # install dependencies
-cd backend/src/ransomware
+cd backend/src
 uv sync
 ```
 
@@ -59,9 +59,15 @@ uv run python -m ransomware
 
 ## Building the Exe
 
+From the repo root:
+
+```
+cd compile_app
+```
+
 Mac/Linux:
 ```bash
-./build.sh
+./compile.sh
 ```
 
 Windows:
@@ -69,7 +75,23 @@ Windows:
 build.bat
 ```
 
-Output lands in `dist/LarpCheck` (or `dist/LarpCheck.exe` on Windows). Only `.out.enc` files are bundled, never plaintext answers or source files.
+Windows PowerShell:
+```powershell
+.\build.bat
+```
+
+The build scripts run PyInstaller in the `backend/src` uv project, so project dependencies like `tkinterweb` and `tkinterdnd2` are included in the packaged app. Output lands in `compile_app/dist/LarpCheck` on Mac/Linux and `compile_app/dist/LarpCheck.exe` on Windows.
+
+The packaged app bundles:
+- problem HTML from `backend/src/ransomware/resources/problems`
+- encrypted testcase files from `backend/src/problem_bank/testcases`
+- a default `sandbox_backup/` seed set
+
+The packaged app does not bundle plaintext expected outputs or reference solution source files.
+
+When you launch the EXE, writable runtime files are created next to it:
+- `sandbox/`
+- `.larpcheck_state.json`
 
 ---
 
@@ -103,7 +125,7 @@ backend/src/
 
 ## How It Works
 
-**On startup**, the app checks for an attached debugger. If one is detected, it exits immediately with no warning. If clean, it loads persistent round state, seeds `sandbox/` from `sandbox_backup/` if empty, assigns 3 random problems from a pool of 12, and encrypts the sandbox.
+**On startup**, the app checks for an attached debugger. If one is detected, it exits immediately with no warning. If clean, it loads persistent round state, seeds `sandbox/` from `sandbox_backup/` if empty, assigns 3 random problems from a pool of 12, and encrypts the sandbox. In a packaged build, bundled read-only assets are loaded from inside the EXE while writable runtime files live beside the executable.
 
 **To unlock**, the student submits `.py` or `.cpp` solutions for each assigned problem. The judge compiles and runs them locally against encrypted testcases. Wrong answers add an 8-hour penalty to the global deadline. Solving all 3 problems triggers decryption.
 
@@ -117,7 +139,13 @@ backend/src/
 
 ## Sandbox
 
-The `sandbox/` folder is what gets encrypted. It is seeded automatically from `sandbox_backup/` on first run or after a reset. Put whatever demo files you want in `sandbox_backup/` before running.
+The `sandbox/` folder is what gets encrypted. It is seeded automatically from `sandbox_backup/` on first run or after a reset.
+
+In source mode, `sandbox/` and `sandbox_backup/` live at the repo root.
+
+In the packaged EXE, `sandbox/` is created next to `LarpCheck.exe`. If a sibling `sandbox_backup/` folder exists there, the app uses it. Otherwise it falls back to the bundled default backup.
+
+To customize the packaged demo files, drop your own `sandbox_backup/` next to the EXE before launching.
 
 ---
 
