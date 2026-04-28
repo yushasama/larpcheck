@@ -4,9 +4,9 @@ import subprocess
 import tempfile
 import time
 from pathlib import Path
-import hashlib, base64, hmac
-from ransomware.crypto import make_fernet
+
 from ransomware.config import TESTCASES_PATH
+from ransomware.crypto import make_fernet
 
 CPP_TIMEOUT_SECONDS = 2
 PYTHON_TIMEOUT_SECONDS = 5.0
@@ -15,17 +15,20 @@ SEGFAULT_RETURN_CODE = -11
 
 def load_io(problem_id: str) -> tuple[str, str]:
     input_path = TESTCASES_PATH / f"{problem_id}.in"
-    enc_path   = TESTCASES_PATH / f"{problem_id}.out.enc"
+    enc_path = TESTCASES_PATH / f"{problem_id}.out.enc"
     stdin = input_path.read_text()
     expected = make_fernet().decrypt(enc_path.read_bytes()).decode()
+
     return stdin, expected
 
 
 def get_python() -> str:
     if shutil.which("python3"):
         return "python3"
+
     if shutil.which("python"):
         return "python"
+
     raise RuntimeError("No Python found")
 
 
@@ -40,6 +43,7 @@ def judge_submission(file_path, problem_id):
     timeout_seconds: float
 
     if ext == ".cpp":
+        # Compile into a temp binary so submitted files never get mutated in place.
         with tempfile.NamedTemporaryFile(suffix=".cpp", delete=False, mode="w") as handle:
             handle.write(source_code)
             src = handle.name
@@ -78,6 +82,7 @@ def judge_submission(file_path, problem_id):
         elapsed = time.time() - start
         actual = run.stdout.strip()
         expected = expected_text.strip()
+
         if run.returncode != 0:
             stderr_lower = run.stderr.lower()
             if run.returncode == SEGFAULT_RETURN_CODE or "segmentation fault" in stderr_lower:
@@ -88,13 +93,12 @@ def judge_submission(file_path, problem_id):
             status = "AC"
         else:
             status = "WA"
+
         return [
             {
                 "case": 1,
                 "status": status,
                 "time_ms": round(elapsed * 1000),
-                "expected": expected,
-                "actual": actual,
                 "stderr": run.stderr,
             }
         ]
@@ -102,6 +106,7 @@ def judge_submission(file_path, problem_id):
         return [{"case": 1, "status": "TLE"}]
     finally:
         os.unlink(src)
+
         if binary and os.path.exists(binary):
             os.unlink(binary)
 

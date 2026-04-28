@@ -45,7 +45,7 @@ from ransomware.config import (
 )
 from ransomware.countdown import Countdown
 from ransomware.sandbox import SandboxManager, SandboxSyncResult
-from ransomware.state import RansomwareState, clear_state, load_state, save_state
+from ransomware.state import RansomwareState, clear_state, load_state, save_state, verify_solve
 from ransomware.ui.problem_card import ProblemCard, build_problem_card
 from ransomware.ui.problem_viewer import ProblemViewer
 from ransomware.ui.styles import (
@@ -79,6 +79,7 @@ class LarpCheckUI:
         self.root.protocol("WM_DELETE_WINDOW", self.on_close)
 
         self.state = load_state()
+
         if len(self.state.active_problem_ids) != ACTIVE_PROBLEM_COUNT:
             self.state.active_problem_ids = random.sample(PROBLEM_IDS, k=ACTIVE_PROBLEM_COUNT)
             self.state.solved_problem_ids = []
@@ -92,6 +93,7 @@ class LarpCheckUI:
         self.active_problem_ids = list(self.state.active_problem_ids)
         self.persist_on_close = True
         self.startup_banner: tuple[str, str] | None = None
+        self.timer_job_id: str | None = None
         self.sandbox = SandboxManager()
 
         self.deadline_label: tk.Label | None = None
@@ -101,11 +103,14 @@ class LarpCheckUI:
 
         self.ensure_sandbox_seeded()
         self.build_layout()
+
         if self.startup_banner is not None:
             self.set_banner(*self.startup_banner)
+
         if self.state.round_active:
             self.encrypt_sandbox()
-        self.refresh_timers()
+
+        self.start_timer_loop()
 
     def build_layout(self) -> None:
         header = tk.Frame(self.root, bg=BG_PRIMARY)
@@ -223,12 +228,15 @@ class LarpCheckUI:
 
     def ensure_sandbox_seeded(self) -> None:
         sync = self.sync_sandbox_state()
+
         if sync.restored_from_backup:
             self.startup_banner = (STATUS_SANDBOX_RESTORED_TEXT, FG_ACCENT)
             return
+
         if not sync.backup_available and self.sandbox.is_empty():
             self.startup_banner = (STATUS_NO_BACKUP_TEXT, FG_ERROR)
             return
+
         if sync.decrypted_count and not self.state.round_active:
             self.startup_banner = (f"{STATUS_DECRYPTED_TEXT} ({sync.decrypted_count} files)", FG_SOLVED)
 
@@ -243,9 +251,11 @@ class LarpCheckUI:
     def encrypt_sandbox(self) -> None:
         if not self.state.encrypted:
             sync = self.sync_sandbox_state()
+
             if not sync.backup_available and self.sandbox.is_empty():
                 self.set_banner(STATUS_NO_BACKUP_TEXT, FG_ERROR)
                 return
+
             encrypted_count = self.sandbox.encrypt()
             self.state.encrypted = True
             save_state(self.state)
@@ -254,38 +264,73 @@ class LarpCheckUI:
     def decrypt_sandbox(self) -> None:
         if self.state.encrypted:
             decrypt_count = self.sandbox.decrypt()
+            self.state.round_active = False
             self.state.encrypted = False
             self.persist_on_close = False
             clear_state()
+            self.stop_timer_loop()
             self.set_success_header()
             self.set_banner(f"{STATUS_DECRYPTED_TEXT} ({decrypt_count} files)", FG_SOLVED)
 
+    def start_timer_loop(self) -> None:
+        self.stop_timer_loop()
+        self.refresh_timers()
+
+    def stop_timer_loop(self) -> None:
+        if self.timer_job_id is not None:
+            self.root.after_cancel(self.timer_job_id)
+            self.timer_job_id = None
+
     def refresh_timers(self) -> None:
-        if len(self.solved_problem_ids) >= PROBLEM_COUNT_TO_DECRYPT:
-            return
+        self.timer_job_id = None
+
         if self.deadline_label is not None:
             self.deadline_label.configure(text=self.current_deadline_display())
-        self.root.after(TIMER_TICK_MS, self.refresh_timers)
+
+        if self.state.round_active and len(self.solved_problem_ids) < PROBLEM_COUNT_TO_DECRYPT:
+            self.timer_job_id = self.root.after(TIMER_TICK_MS, self.refresh_timers)
 
     def current_deadline_display(self) -> str:
         effective_deadline_seconds = max(0, DEADLINE_SECONDS - (self.state.penalties * PENALTY_SECONDS))
+
         return self.countdown.deadline_display(effective_deadline_seconds)
 
     def sync_sandbox_state(self) -> SandboxSyncResult:
         sync = self.sandbox.reconcile(self.state)
+
         if sync.state_changed:
             save_state(self.state)
+
         return sync
+
+    def has_verified_active_solves(self) -> bool:
+        if len(self.solved_problem_ids) < PROBLEM_COUNT_TO_DECRYPT:
+            return False
+
+        # All active problems need a matching token before we unlock anything.
+        solved_ids = set(self.solved_problem_ids)
+
+        for problem_id in self.active_problem_ids:
+            if problem_id not in solved_ids:
+                return False
+
+            token = self.state.solve_tokens.get(problem_id)
+            if token is None or not verify_solve(problem_id, token):
+                return False
+
+        return True
 
     def get_card(self, problem_id: str) -> ProblemCard:
         for card in self.cards:
             if card.problem_id == problem_id:
                 return card
+            
         raise KeyError(problem_id)
 
     def enable_drag_drop(self, card: ProblemCard) -> None:
         if DND_FILES is None:
             return
+        
         card.drop_label.drop_target_register(DND_FILES)
         card.drop_label.dnd_bind(
             "<<Drop>>",
@@ -296,18 +341,22 @@ class LarpCheckUI:
         dropped_files = self.root.tk.splitlist(raw_data)
         if not dropped_files:
             return
+        
         dropped_path = dropped_files[0]
         self.attach_file(problem_id, dropped_path)
 
     def attach_file(self, problem_id: str, selected: str) -> None:
         card = self.get_card(problem_id)
         path = Path(selected)
+
         if path.suffix.lower() not in {".py", ".cpp"} or not path.is_file():
             self.set_banner(STATUS_INVALID_DROP_TEXT, FG_ERROR)
             card.status_label.configure(text=STATUS_ERROR_TEXT, fg=FG_ERROR)
             return
+        
         card.file_path = str(path)
         card.drop_label.configure(text=path.name)
+
         card.status_label.configure(text=STATUS_PENDING_TEXT, fg=FG_ACCENT)
         self.set_banner(STATUS_DROPPED_TEXT, FG_ACCENT)
 
@@ -316,6 +365,7 @@ class LarpCheckUI:
             title=f"Select solution for problem {problem_id.upper()}",
             filetypes=[("Supported", "*.py *.cpp"), ("Python", "*.py"), ("C++", "*.cpp")],
         )
+        
         if not selected:
             return
         self.attach_file(problem_id, selected)
@@ -336,14 +386,17 @@ class LarpCheckUI:
             return
 
         result = judge_submission(card.file_path, problem_id)
+
         if isinstance(result, dict):
             self.state.penalties += 1
             save_state(self.state)
             card.status_label.configure(text=STATUS_COMPILE_ERROR_TEXT, fg=FG_ERROR)
             self.set_banner(result.get("detail") or STATUS_COMPILE_ERROR_TEXT, FG_ERROR)
+
             return
 
         accepted = all(case.get("status") == "AC" for case in result)
+
         if accepted:
             self.mark_solved(problem_id, card)
             return
@@ -351,12 +404,15 @@ class LarpCheckUI:
         self.state.penalties += 1
         save_state(self.state)
         status = result[0].get("status")
+
         if status == "TLE":
             card.status_label.configure(text=STATUS_TLE_TEXT, fg=FG_ERROR)
             self.set_banner(STATUS_TLE_TEXT, FG_ERROR)
+            
         elif status == "RTE":
             card.status_label.configure(text=STATUS_RUNTIME_ERROR_TEXT, fg=FG_ERROR)
             self.set_banner(result[0].get("stderr") or STATUS_RUNTIME_ERROR_TEXT, FG_ERROR)
+
         elif status == "SEGFAULT":
             card.status_label.configure(text=STATUS_SEGFAULT_TEXT, fg=FG_ERROR)
             self.set_banner(result[0].get("stderr") or STATUS_SEGFAULT_TEXT, FG_ERROR)
@@ -366,21 +422,28 @@ class LarpCheckUI:
 
     def mark_solved(self, problem_id: str, card: ProblemCard) -> None:
         from ransomware.state import sign_solve
+
         token = sign_solve(problem_id)
         self.state.solve_tokens[problem_id] = token
         self.solved_problem_ids.add(problem_id)
+
         self.state.solved_problem_ids = sorted(self.solved_problem_ids)
         save_state(self.state)
+
         card.status_label.configure(text=STATUS_SOLVED_TEXT, fg=FG_SOLVED)
         card.submit_btn.configure(state="disabled")
         self.set_banner(f"Problem {problem_id.upper()} solved.", FG_SOLVED)
 
         if len(self.solved_problem_ids) >= PROBLEM_COUNT_TO_DECRYPT:
-            self.decrypt_sandbox()
+            if self.has_verified_active_solves():
+                self.decrypt_sandbox()
+            else:
+                self.set_banner("Solve token verification failed.", FG_ERROR)
 
     def reset_round(self) -> None:
         restored = self.restore_sandbox_from_backup()
         self.persist_on_close = True
+
         self.state = RansomwareState(
             started_at=time.time(),
             active_problem_ids=random.sample(PROBLEM_IDS, k=ACTIVE_PROBLEM_COUNT),
@@ -393,10 +456,16 @@ class LarpCheckUI:
         self.solved_problem_ids = set()
         self.active_problem_ids = list(self.state.active_problem_ids)
         save_state(self.state)
+
+        self.restore_default_header()
         self.render_cards()
         self.encrypt_sandbox()
+
         if self.deadline_label is not None:
             self.deadline_label.configure(text=self.current_deadline_display())
+
+        self.start_timer_loop()
+
         if restored:
             self.set_banner(STATUS_RESET_TEXT, FG_ACCENT)
 
@@ -405,10 +474,14 @@ class LarpCheckUI:
         self.state.round_active = False
         self.state.encrypted = False
         save_state(self.state)
+        self.stop_timer_loop()
         restored = self.restore_sandbox_from_backup()
+        self.restore_default_header()
         self.render_cards()
+
         if restored:
             self.set_banner(f"{STATUS_ROUND_ENDED_TEXT} {STATUS_SANDBOX_RESTORED_TEXT}", FG_ACCENT)
+
         else:
             self.set_banner(f"{STATUS_ROUND_ENDED_TEXT} {STATUS_NO_BACKUP_TEXT}", FG_ERROR)
 
@@ -419,13 +492,24 @@ class LarpCheckUI:
     def set_success_header(self) -> None:
         if self.subtitle_label is not None:
             self.subtitle_label.configure(text=SUCCESS_HEADER_TEXT, fg=FG_SOLVED)
+        
         if self.description_label is not None:
             self.description_label.configure(text=SUCCESS_BODY_TEXT)
 
+    def restore_default_header(self) -> None:
+        if self.subtitle_label is not None:
+            self.subtitle_label.configure(text=HEADER_TEXT, fg=FG_TIMER)
+
+        if self.description_label is not None:
+            self.description_label.configure(text=BODY_TEXT)
+
     def on_close(self) -> None:
+        self.stop_timer_loop()
+
         if self.persist_on_close:
             self.state.solved_problem_ids = sorted(self.solved_problem_ids)
             save_state(self.state)
+            
         self.root.destroy()
 
     def run(self) -> None:

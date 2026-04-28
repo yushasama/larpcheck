@@ -5,6 +5,7 @@ import sys
 def is_being_debugged() -> bool:
     if sys.gettrace() is not None:
         return True
+
     if platform.system() == "Windows":
         try:
             import ctypes

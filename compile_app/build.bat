@@ -7,7 +7,7 @@ for %%I in ("%SCRIPT_DIR%..") do set "ROOT_DIR=%%~fI"
 pushd "%SCRIPT_DIR%" >nul || exit /b 1
 
 uv run --project "%ROOT_DIR%\backend\src" --with pyinstaller pyinstaller ^
-  --onefile ^
+  --onedir ^
   --noconsole ^
   --name LarpCheck ^
   --add-data "%ROOT_DIR%\backend\src\ransomware\resources\problems;resources/problems" ^
@@ -19,5 +19,5 @@ set "EXIT_CODE=%ERRORLEVEL%"
 popd >nul
 if not "%EXIT_CODE%"=="0" exit /b %EXIT_CODE%
 
-echo Done. dist/LarpCheck.exe ready.
+echo Done. dist/LarpCheck\LarpCheck.exe ready.
 endlocal

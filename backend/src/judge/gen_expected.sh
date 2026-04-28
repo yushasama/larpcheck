@@ -7,7 +7,7 @@
 #   ./gen_expected.sh a b e        # specific problems
 #
 # Override dirs via env vars:
-#   SOLUTIONS_DIR=../../../solution_code} BANK_DIR=../problem_bank ./gen_expected.sh
+#   SOLUTIONS_DIR=../../../solution_code BANK_DIR=../problem_bank ./gen_expected.sh
 
 set -euo pipefail
 
@@ -20,7 +20,8 @@ mkdir -p "$BIN_DIR"
 ALL_PROBLEMS=("a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l")
 PROBLEMS=("${@:-${ALL_PROBLEMS[@]}}")
 
-ok=0; fail=0
+ok=0
+fail=0
 
 for pid in "${PROBLEMS[@]}"; do
     src="$SOLUTIONS_DIR/$pid.cpp"
@@ -29,23 +30,29 @@ for pid in "${PROBLEMS[@]}"; do
     out="$BANK_DIR/$pid.out"
 
     if [ ! -f "$src" ]; then
-        echo "  [$pid] SKIP — no source at $src"; continue
+        echo "  [$pid] SKIP - no source at $src"
+        continue
     fi
     if [ ! -f "$inp" ]; then
-        echo "  [$pid] SKIP — no input at $inp (run build_bank.py first)"; continue
+        echo "  [$pid] SKIP - no input at $inp (run build_bank.py first)"
+        continue
     fi
 
     if ! g++ -O2 -std=c++17 -o "$bin" "$src" 2>/tmp/_cerr_$pid; then
-        echo "  [$pid] COMPILE ERROR"; cat /tmp/_cerr_$pid
-        ((fail++)) || true; continue
+        echo "  [$pid] COMPILE ERROR"
+        cat /tmp/_cerr_$pid
+        ((fail++)) || true
+        continue
     fi
 
     if ! "$bin" < "$inp" > "$out" 2>/tmp/_rerr_$pid; then
-        echo "  [$pid] RUNTIME ERROR"; cat /tmp/_rerr_$pid
-        ((fail++)) || true; continue
+        echo "  [$pid] RUNTIME ERROR"
+        cat /tmp/_rerr_$pid
+        ((fail++)) || true
+        continue
     fi
 
-    echo "  [$pid] OK — $(wc -l < "$out") output lines → $out"
+    echo "  [$pid] OK - $(wc -l < "$out") output lines -> $out"
     ((ok++)) || true
 done
 

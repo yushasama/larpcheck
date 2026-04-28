@@ -1,12 +1,14 @@
+import hashlib
+import hmac
 import json
 import time
 from dataclasses import asdict, dataclass, field
-from pathlib import Path
 
 from ransomware.config import STATE_PATH
-import hmac, hashlib
+
 
 _HMAC_SECRET = b"larpcheck-solve-2026"
+
 
 @dataclass
 class RansomwareState:
@@ -22,7 +24,9 @@ class RansomwareState:
 def load_state() -> RansomwareState:
     if not STATE_PATH.exists():
         return RansomwareState()
+
     data = json.loads(STATE_PATH.read_text())
+
     return RansomwareState(
         started_at=data.get("started_at", time.time()),
         active_problem_ids=data.get("active_problem_ids", []),
@@ -42,8 +46,10 @@ def clear_state() -> None:
     if STATE_PATH.exists():
         STATE_PATH.unlink()
 
+
 def sign_solve(problem_id: str) -> str:
     return hmac.new(_HMAC_SECRET, problem_id.encode(), hashlib.sha256).hexdigest()
+
 
 def verify_solve(problem_id: str, token: str) -> bool:
     return hmac.compare_digest(sign_solve(problem_id), token)

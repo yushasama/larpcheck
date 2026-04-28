@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-build.py — Compile problem JSONs into styled HTML files.
+build.py - Compile problem JSONs into styled HTML files.
 
 Usage:
     python build.py                     # build all problems/
@@ -8,20 +8,17 @@ Usage:
     python build.py --out ./dist        # write to custom output dir
 """
 
-import json
 import argparse
+import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "ransomware"))
-from crypto import make_fernet
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+# These pages get bundled as standalone HTML, so the CSS lives inline here.
 
 BADGE_STYLES = {
-    "hard":  ("background:#fce4ef;color:#993556;", "Hard"),
+    "hard": ("background:#fce4ef;color:#993556;", "Hard"),
     "topic": ("background:#f0eaff;color:#5c3a9e;", None),  # label from JSON
 }
 
@@ -53,12 +50,11 @@ body{font-family:'M PLUS 1p',sans-serif;}
 .sample-code{font-family:monospace;font-size:13px;line-height:1.7;color:#1a0a1e;white-space:pre;}
 """.strip()
 
-# ---------------------------------------------------------------------------
-# Rendering helpers
-# ---------------------------------------------------------------------------
+# Small helpers keep the HTML assembly below from turning into one giant string.
 
 def render_paragraphs(paragraphs: list[str], css_class: str = "stmt") -> str:
     inner = "\n".join(f"  <p>{p}</p>" for p in paragraphs)
+
     return f'<div class="{css_class}">\n{inner}\n</div>'
 
 
@@ -67,89 +63,86 @@ def render_constraints(constraints: list[str]) -> str:
         f'  <div class="constraint-row"><span class="c-sym">{c}</span></div>'
         for c in constraints
     )
+
     return f'<div class="constraints">\n{rows}\n</div>'
 
 
 def render_badges(badges: list[dict]) -> str:
     if not badges:
         return ""
+
     items = []
-    for b in badges:
-        style, default_label = BADGE_STYLES.get(b["type"], ("", None))
-        label = b.get("label") or default_label or b["type"]
+
+    for badge in badges:
+        style, default_label = BADGE_STYLES.get(badge["type"], ("", None))
+        label = badge.get("label") or default_label or badge["type"]
         items.append(f'<span class="badge" style="{style}">{label}</span>')
-    return f'<div class="prob-meta">\n  ' + "\n  ".join(items) + "\n</div>"
+
+    badges_html = "\n  ".join(items)
+
+    return f'<div class="prob-meta">\n  {badges_html}\n</div>'
 
 
 def render_notes(notes: list[str]) -> str:
-    return "\n".join(f'<div class="note">{n}</div>' for n in notes)
+    return "\n".join(f'<div class="note">{note}</div>' for note in notes)
 
 
 def render_samples(samples: list[dict]) -> str:
     blocks = []
-    for s in samples:
-        blocks.append(f"""<div class="sample">
-  <div class="sample-head">{s['label']}</div>
+
+    for sample in samples:
+        sample_html = f"""<div class="sample">
+  <div class="sample-head">{sample['label']}</div>
   <div class="sample-body">
     <div class="sample-col">
       <div class="sample-col-label">Input</div>
-      <div class="sample-code">{s['input']}</div>
+      <div class="sample-code">{sample['input']}</div>
     </div>
     <div class="sample-col">
       <div class="sample-col-label">Output</div>
-      <div class="sample-code">{s['output']}</div>
+      <div class="sample-code">{sample['output']}</div>
     </div>
   </div>
-</div>""")
+</div>"""
+        blocks.append(sample_html)
+
     return '<div class="samples">\n' + "\n".join(blocks) + "\n</div>"
 
 
 def render_section(label: str, content: str) -> str:
     return f'<div class="section-label">{label}</div>\n{content}'
 
-# ---------------------------------------------------------------------------
-# Main builder
-# ---------------------------------------------------------------------------
 
 def build_problem(json_path: Path, out_dir: Path) -> None:
     data = json.loads(json_path.read_text())
 
+    # Keeping sections separate makes the final HTML much easier to tweak.
     parts = [
         f"<style>\n{CSS}\n</style>",
         '<div class="shell">',
         f'  <div class="prob-title">{data["title"]}</div>',
     ]
 
-    # Badges (optional)
     if data.get("badges"):
         parts.append(render_badges(data["badges"]))
 
-    # Statement
     parts.append(render_section("Statement", render_paragraphs(data["statement"])))
-
-    # Input format
     parts.append(render_section("Input", render_paragraphs(data["input_format"])))
-
-    # Output format
     parts.append(render_section("Output", render_paragraphs(data["output_format"])))
-
-    # Constraints
     parts.append(render_section("Constraints", render_constraints(data["constraints"])))
 
-    # Notes before samples (optional)
     pre_notes = data.get("notes", [])
     if pre_notes:
         parts.append(render_section("Notes", render_notes(pre_notes)))
 
-    # Samples
     parts.append(render_section("Sample I/O", render_samples(data["samples"])))
-
     parts.append("</div>")
 
     html = "\n\n".join(parts)
     out_path = out_dir / f"{data['id']}.html"
     out_path.write_text(html)
-    print(f"  built → {out_path}")
+
+    print(f"  built -> {out_path}")
 
 
 def main() -> None:
@@ -157,6 +150,7 @@ def main() -> None:
     parser.add_argument("ids", nargs="*", help="Problem IDs to build (default: all)")
     parser.add_argument("--src", default="../problem_bank", help="Source JSON directory")
     parser.add_argument("--out", default="../ransomware/resources/problems", help="Output HTML directory")
+
     args = parser.parse_args()
 
     src_dir = Path(args.src)
@@ -165,9 +159,9 @@ def main() -> None:
 
     if args.ids:
         json_paths = [src_dir / f"{pid}.json" for pid in args.ids]
-        missing = [p for p in json_paths if not p.exists()]
+        missing = [path for path in json_paths if not path.exists()]
         if missing:
-            print(f"ERROR: missing JSON files: {[str(p) for p in missing]}", file=sys.stderr)
+            print(f"ERROR: missing JSON files: {[str(path) for path in missing]}", file=sys.stderr)
             sys.exit(1)
     else:
         json_paths = sorted(src_dir.glob("*.json"))
@@ -177,8 +171,10 @@ def main() -> None:
         sys.exit(1)
 
     print(f"Building {len(json_paths)} problem(s)...")
+
     for path in json_paths:
         build_problem(path, out_dir)
+
     print("Done.")
 
 

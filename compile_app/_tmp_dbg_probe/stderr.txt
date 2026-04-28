@@ -1,0 +1,3 @@
+[PYI-45868:ERROR] Failed to extract VCRUNTIME140.dll: failed to open target file!
+fopen: Permission denied
+[PYI-45868:ERROR] Failed to extract entry: VCRUNTIME140.dll.

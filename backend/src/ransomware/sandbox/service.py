@@ -36,12 +36,14 @@ class SandboxManager:
             return False
 
         self.sandbox_path.mkdir(parents=True, exist_ok=True)
+
         for child in self.sandbox_path.iterdir():
             if child.is_dir():
                 shutil.rmtree(child)
             else:
                 child.unlink()
 
+        # Copy the backup tree over fresh so a reset never mixes old and new files.
         for source in self.backup_path.rglob("*"):
             target = self.sandbox_path / source.relative_to(self.backup_path)
             if source.is_dir():
@@ -49,6 +51,7 @@ class SandboxManager:
             else:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
+
         return True
 
     def encrypt(self) -> int:
@@ -60,6 +63,7 @@ class SandboxManager:
     def reconcile(self, state: RansomwareState) -> SandboxSyncResult:
         self.sandbox_path.mkdir(parents=True, exist_ok=True)
         total_files, encrypted_files = sandbox_file_counts(self.sandbox_path)
+
         if total_files == 0:
             return SandboxSyncResult(
                 restored_from_backup=self.restore_from_backup(),
@@ -67,17 +71,28 @@ class SandboxManager:
             )
 
         state_changed = False
-        decrypted_count = 0
         encrypted_count = 0
+        restored_from_backup = False
 
-        if encrypted_files and (not state.round_active or not state.encrypted):
-            decrypted_count = self.decrypt()
+        if not state.round_active and encrypted_files:
+            # Once the round is over, put the demo files back instead of leaving ciphertext around.
+            restored_from_backup = self.restore_from_backup()
             if state.encrypted:
                 state.encrypted = False
                 state_changed = True
-            total_files, encrypted_files = sandbox_file_counts(self.sandbox_path)
+
+            return SandboxSyncResult(
+                restored_from_backup=restored_from_backup,
+                state_changed=state_changed,
+                backup_available=self.has_backup(),
+            )
+
+        if encrypted_files and not state.encrypted:
+            state.encrypted = True
+            state_changed = True
 
         if state.round_active and state.encrypted and encrypted_files < total_files:
+            # Re-encrypt anything that got manually restored mid-round.
             encrypted_count = self.encrypt()
             total_files, encrypted_files = sandbox_file_counts(self.sandbox_path)
 
@@ -86,7 +101,6 @@ class SandboxManager:
             state_changed = True
 
         return SandboxSyncResult(
-            decrypted_count=decrypted_count,
             encrypted_count=encrypted_count,
             state_changed=state_changed,
             backup_available=self.has_backup(),

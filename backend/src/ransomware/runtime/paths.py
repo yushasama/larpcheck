@@ -23,25 +23,35 @@ def _resolve_backup_path(*candidates: Path) -> Path:
     for candidate in candidates:
         if candidate.exists() and any(candidate.iterdir()):
             return candidate
+
     return candidates[-1]
 
 
 def resolve_runtime_paths() -> RuntimePaths:
-    runtime_path = Path(__file__).resolve().parent
-    package_path = runtime_path.parent
-    src_path = package_path.parent
-    backend_path = src_path.parent
-    repo_root = package_path.parents[2]
-
     if getattr(sys, "frozen", False):
-        bundle_root = Path(getattr(sys, "_MEIPASS", package_path))
+        # Bundled assets come from the app bundle, but runtime files live beside the launcher.
         app_root = Path(sys.executable).resolve().parent
+        bundle_root = Path(getattr(sys, "_MEIPASS", app_root)).resolve()
+        package_path = bundle_root / "ransomware"
+
+        if not package_path.exists():
+            package_path = bundle_root
+
+        src_path = bundle_root
+        backend_path = bundle_root
+        repo_root = app_root
         resources_path = bundle_root / "resources"
         testcases_path = bundle_root / "testcases"
         bundled_backup_path = bundle_root / "sandbox_backup"
         external_backup_path = app_root / "sandbox_backup"
         sandbox_backup_path = _resolve_backup_path(external_backup_path, bundled_backup_path)
+
     else:
+        runtime_path = Path(__file__).resolve().parent
+        package_path = runtime_path.parent
+        src_path = package_path.parent
+        backend_path = src_path.parent
+        repo_root = package_path.parents[2]
         bundle_root = repo_root
         app_root = repo_root
         resources_path = package_path / "resources"
